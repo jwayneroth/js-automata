@@ -6,6 +6,7 @@ window.onload = function () {
       imageData = ctx.getImageData(0, 0, width, height),
       seed_r, seed_c, seed_offset,
       row, col,
+      animeID,
       i = 0,
       j = 0
   /*for (i=0; i<width; i++) {
@@ -47,13 +48,15 @@ window.onload = function () {
 
   }
 
-  seed_r = Math.floor(Math.random() * height);
-  seed_c = Math.floor(Math.random() * width);
-  seed_offset = (seed_r * width + seed_c) * 4;
+  for (i=0; i<(width * height); i++) {
+    seed_r = Math.floor(Math.random() * height);
+    seed_c = Math.floor(Math.random() * width);
+    seed_offset = (seed_r * width + seed_c) * 4;
 
-  imageData.data[seed_offset + 0] = 255;
-  imageData.data[seed_offset + 1] = 255;
-  imageData.data[seed_offset + 2] = 255;
+    imageData.data[seed_offset + 0] = 255;
+    imageData.data[seed_offset + 1] = 255;
+    imageData.data[seed_offset + 2] = 255;
+  }
 
   ctx.putImageData(imageData, 0, 0);
 
@@ -61,7 +64,8 @@ window.onload = function () {
 
     //console.log('iterate');
 
-    var row,
+    var id = {data:imageData.data.slice(), width: width, height: height},
+      row,
       col,
       sum,
       l, t, r, b, drb, dlt,
@@ -72,46 +76,17 @@ window.onload = function () {
       row = Math.floor(i / 4 / width);
       col = i / 4 - row * width;
 
-      t = (row != 0) ? getPixelTotal(imageData, row-1, col) : getPixelTotal(imageData, height-1, col);
-      b = (row != height-1) ? getPixelTotal(imageData, row+1, col) : getPixelTotal(imageData, 0, col);
-      l = (col != 0) ? getPixelTotal(imageData, row, col-1) : getPixelTotal(imageData, row, width-1);
-      r = (col != width-1) ? getPixelTotal(imageData, row, col+1) : getPixelTotal(imageData, row, 0);
-
-      if (row == height-1) {
-        if (col == width-1) {
-          drb = getPixelTotal(imageData, 0, 0);
-        } else {
-          drb = getPixelTotal(imageData, 0, col+1);
-        }
-      } else {
-        if (col == width-1) {
-          drb = getPixelTotal(imageData, row+1, 0);
-        } else {
-          drb = getPixelTotal(imageData, row+1, col+1);
-        }
-      }
-
-      if (row == 0) {
-        if (col == 0) {
-          dlt = getPixelTotal(imageData, height-1, width-1);
-        } else {
-          dlt = getPixelTotal(imageData, height-1, col-1);
-        }
-      } else {
-        if (col == 0) {
-          dlt = getPixelTotal(imageData, row-1, width-1);
-        } else {
-          dlt = getPixelTotal(imageData, row-1, col-1);
-        }
-      }
+      t = getPixelTotal(id, col, row-1, width);
+      b = getPixelTotal(id, col, row+1, width);
+      l = getPixelTotal(id, col-1, row, width);
+      r = getPixelTotal(id, col+1, row, width);
+      drb = getPixelTotal(id, col+1, row+1, width);
+      dlt = getPixelTotal(id, col-1, row-1, width);
 
       sum = t + b + l + r + drb + dlt;
 
-      //if (i == seed_offset) console.log('sum: ' + sum);
-
-      if (sum == 2295) {
-        //console.log('flip!');
-         if (getPixelTotal(imageData,row,col) == 0) {
+      if (sum == 3 * 255 * 3) {
+         if (getPixelTotal(id,col,row,width) == 0) {
           imageData.data[i + 0] = 255;
           imageData.data[i + 1] = 255;
           imageData.data[i + 2] = 255;
@@ -127,14 +102,18 @@ window.onload = function () {
 
   }
 
+  $('body').keydown(function(evt) {
+    console.log(evt);
+    if (animeID) window.cancelAnimationFrame(animeID);
+  });
   (function drawFrame () {
-    window.requestAnimationFrame(drawFrame, canvas);
+    animeID = window.requestAnimationFrame(drawFrame, canvas);
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
     iterate();
   }());
 };
 
-function getPixelTotal(imageData, y, x) {
+function getPixelTotal(imageData, x, y) {
   var r, g, b, a, offset = x * 4 + y * 4 * imageData.width;
   r = imageData.data[offset];
   g = imageData.data[offset + 1];
