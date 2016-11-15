@@ -61,8 +61,7 @@ window.onload = function () {
 
   ctx.putImageData(imageData, 0, 0);
 
-  iterate();
-  iterate();
+
 
 
   function iterate () {
@@ -116,11 +115,11 @@ window.onload = function () {
     console.log(evt);
     if (animeID) window.cancelAnimationFrame(animeID);
   });
-  /*(function drawFrame () {
+  (function drawFrame () {
     animeID = window.requestAnimationFrame(drawFrame, canvas);
     //ctx.clearRect(0, 0, canvas.width, canvas.height);
     iterate();
-  }());*/
+  }());
 };
 
 function getPixelTotal(imageData, x, y) {
