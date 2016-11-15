@@ -28,7 +28,6 @@ window.onload = function () {
     seed_r = Math.floor(Math.random() * height);
     seed_c = Math.floor(Math.random() * width);
     seed_offset = (seed_r * width + seed_c) * 4;
-
     imageData.data[seed_offset + 0] = Math.floor(Math.random() * 510 - 255);
     imageData.data[seed_offset + 1] = Math.floor(Math.random() * 510 - 255);
     imageData.data[seed_offset + 2] = Math.floor(Math.random() * 510 - 255);
