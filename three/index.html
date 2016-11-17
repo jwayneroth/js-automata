@@ -7,35 +7,70 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <link rel="stylesheet" href="../css/normalize.css">
-        <link rel="stylesheet" href="../css/main.css">
+        <!--<link rel="stylesheet" href="../css/normalize.css">-->
         <script src="../js/vendor/modernizr-2.8.3.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-
+        <link rel="stylesheet" href="../css/pick-a-color-1.2.3.min.css">
+        <link rel="stylesheet" href="../css/main.css">
         <!--<style>canvas {width: 100%; height: auto;}</style>-->
     </head>
     <body>
 
         <canvas id="canvas" width="500" height="500"></canvas>
+
         <div class="container">
             <div class="row">
-                <form class="navbar-form navbar-left" role="search">
-                    <div class="form-group">
-                        <label for="scale">scale</label><input id="scale" name="scale" type="number" class="form-control" placeholder="scale" value="1" min="1" max="20" step="1">
-                    </div>
+                <div class="col-xs-8">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="scale">scale</label>
+                            <input id="scale" name="scale" type="number" class="form-control" placeholder="scale" value="4" min="1" max="20" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="seeds">seeds</label>
+                            <!--<div class="input-group">
+                                <input id="seeds" name="scale" type="number" class="form-control" placeholder="seeds" value="1" min="1" max="100" step="15">
+                                <div class="input-group-addon">%</div>
+                            </div>-->
+                            <select class="form-control" id="seeds" name="seeds">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="50" selected="selected">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                                <option value="300">300</option>
+                                <option value="500">500</option>
+                                <option value="800">800</option>
+                                <option value="3000">3000</option>
+                                <option value="10000">10000</option>
+                            </select>
+                        </div>
+                        <label for="colorpicker1">color 1</label>
+                        <input type="text" value="333" name="colorpicker1" id="colorpicker1" class="pick-a-color form-control">
+                        <label for="colorpicker2">color 2</label>
+                        <input type="text" value="EEE" name="colorpicker2" id="colorpicker2" class="pick-a-color form-control">
+                    </form>
+                </div>
+                <div class="col-xs-4">
                     <div class="btn-group" role="group" aria-label="">
                         <button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
                         <button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
                         <!--<button id="stop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span></button>-->
                     </div>
-                </form>
+                </div>
+                <div class="col-xs-4">
 
+                </div>
             </div>
         </div>
+
 
         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
         <script>window.jQuery || document.write('<script src="../js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="../js/vendor/tinycolor-0.9.15.min.js"></script>
+        <script src="../js/vendor/pick-a-color-1.2.3.min.js"></script>
         <script src="ta.js"></script>
         <script src="app.js"></script>
         <script>
