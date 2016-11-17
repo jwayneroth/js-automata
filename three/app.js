@@ -20,6 +20,7 @@
 		///////////////////////////////////////////////////////
 
 		var _self = this;
+		var ta = ta || {};
 
 		///////////////////////////////////////////////////////
 		// methods
@@ -55,9 +56,23 @@
 
 		}
 
-		this.onColorChange = function() {
-			ta.setColors($('#colorpicker1 input').val(), $('#colorpicker2 input').val());
+		this.onColorChange = function(evt) {
+
+			//console.log('App::onColorChange ', evt.color.toRGB());
+
+			var c1 = $('#cp1').data('colorpicker').color.toRGB(),
+				c2 = $('#cp2').data('colorpicker').color.toRGB();
+
+			c1.a = Math.round(c1.a * 255);
+			c2.a = Math.round(c2.a * 255);
+
+			ta.setColors(c1,c2);
 			_self.setPaused();
+		}
+
+		this.onBGColorChange = function(evt) {
+			//console.log('App::onBGColorChange');
+			document.getElementById('canvas').style.backgroundColor = evt.color.toHex();
 		}
 
 		this.setPaused = function() {
@@ -70,22 +85,41 @@
 		 * docReady
 		 */
 		this.docReady = function() {
+
 			console.log('App::docReady');
-			$(".pick-a-color")
-			.pickAColor({
-				showSpectrum: false,
-				showSavedColors: false,
-				showBasicColors: false,
-				showHexInput: false,
-				allowBlank: false
-			})
-			.on('change', _self.onColorChange);
+
+			var canvas, c1, c2;
+
+			$("#cp1,#cp2").colorpicker({});
+			$("#cp3").colorpicker({format:'rgb'});
+
+			$('#cp1,#cp2').on('changeColor', _self.onColorChange);
+			$('#cp3').on('changeColor', _self.onBGColorChange);
+
 			$('#playpause').on('click', _self.onPlayPauseClick);
 			$('#restart').on('click', _self.onRestartClick);
 			$('#scale').on('change', _self.onScaleChange);
 			$('#seeds').on('change', _self.onSeedsChange);
 
+			canvas = document.getElementById('canvas');
+			canvas.style.backgroundColor = $('#cp3').data('colorpicker').color.toHex();
+
+			c1 = $('#cp1').data('colorpicker').color.toRGB();
+			c2 = $('#cp2').data('colorpicker').color.toRGB();
+
+			c1.a = Math.round(c1.a * 255);
+			c2.a = Math.round(c2.a * 255);
+
+			ta = new scope.TA({
+				canvas: canvas,
+				scale: parseInt($('#scale').val()),
+				seeds: parseInt($('#seeds').val()),
+				color_one: c1,
+				color_two: c2
+			});
+
 			//$('#playpause').click();
+
 		};
 
 		/**
@@ -106,14 +140,6 @@
 
 		$(window).load(function($) {
 			_self.windowLoaded();
-		});
-
-		var ta = new scope.TA({
-			canvas: document.getElementById('canvas'),
-			scale: parseInt($('#scale').val()),
-			seeds: parseInt($('#seeds').val()),
-			color_one: $('#colorpicker1').val(),
-			color_two: $('#colorpicker2').val()
 		});
 
 	}; // end init

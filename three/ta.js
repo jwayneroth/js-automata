@@ -4,20 +4,15 @@
 
 		var config = config || {};
 
-		var rgb_inc = 200;
-
 		var defaults = {
 			scale: 10,
 			seeds: .1,
-			color_one: '333',
-			color_two: 'EEE',
+			color_one: {r:255,g:255,b:255,a:255},
+			color_two: {r:33,g:33,b:33,a:100},
 			animeID: null
 		};
 
 		$.extend(this, defaults, config);
-
-		this.rgb_one = {r:33,g:33,b:33,a:10}; //TA.hexToRGB(this.color_one);
-		this.rgb_two = {r:200,g:200,b:200,a:200}; //TA.hexToRGB(this.color_two);
 
 		this.init();
 
@@ -54,41 +49,46 @@
 		this.initLattice = function() {
 
 			//console.log('TA::initLattice');
-			console.log(imageData.data[0]);
+
 			var i=0,
 				row=0,
 				col=0,
 				scale = _self.scale,
-				rgb_one = _self.rgb_one,
-		    	rgb_two = _self.rgb_two;
-
-			//console.log(rgb_one, rgb_two);
+				rgb_one = _self.color_one,
+		    	rgb_two = _self.color_two,
+		    	offset,
+		    	sizew,
+		    	square_rgb;
 
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
-
-			    //console.log('row: ' + row + '\t\t col: ' + col);
 
 			    if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
 			    	((row / scale % 2 != 0) && (col / scale % 2 != 0))
 			    ) {
-			        ctx.fillStyle = _self.getStyle(rgb_one);
+			        square_rgb = rgb_one;
 			    } else {
-			      	ctx.fillStyle = _self.getStyle(rgb_two);
+			      	square_rgb = rgb_two;
 			    }
 
-			    ctx.moveTo(col-scale,row-scale);
-			    ctx.fillRect(col,row,scale,scale);
+			    offset = col * 4 + row * 4 * width;
 
-			  	i++;
+			    //console.log('i: ' + i + '\t\t row: ' + row + '\t\t col: ' + col + '\t\t offset: ' + offset);
+
+				sizew = (col + scale <= width) ? scale : width - col;
+
+			     _self.fillSquare(offset, sizew, scale, square_rgb);
+
 				if(col > width - 1 - scale) {
 					col = 0;
 					row += scale;
 				} else {
 					col += scale;
 				}
+				i++;
 			}
-			imageData = ctx.getImageData(0, 0, width, height),
-			console.log(imageData.data[0]);
+
+			ctx.putImageData(imageData, 0, 0);
+
 			_self.seedLattice();
 
 		};
@@ -100,10 +100,12 @@
 
 			var i=0,
 				scale = _self.scale,
+				sizew,
 				seed_cnt =  _self.seeds,
 				seed_r,seed_c,seed_rgba,
-				rgb_one = _self.rgb_one,
-		    	rgb_two = _self.rgb_two;
+				rgb_one = _self.color_one,
+		    	rgb_two = _self.color_two,
+		    	offset;
 
 		    //console.log('TA::seedLattice \t seeds: ' + _self.seeds);
 
@@ -118,11 +120,16 @@
 			    if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
 			    if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
 
-			    ctx.fillStyle = _self.getStyle(seed_rgba);
-			    ctx.moveTo(seed_c,seed_r);
-			    ctx.fillRect(seed_c,seed_r,scale,scale);
+			    offset = seed_c * 4 + seed_r * 4 * width;
+
+				sizew = (seed_c + scale <= width) ? scale : width - seed_c;
+
+			     _self.fillSquare(offset, sizew, scale, seed_rgba);
 
 			}
+
+			ctx.putImageData(imageData, 0, 0);
+
 		};
 
 		/**
@@ -130,22 +137,22 @@
 		 */
 		this.iterate = function() {
 
-			imageData = ctx.getImageData(0, 0, width, height);
-
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
+				sizew,
 				i=0,
 				row=0,
 				col=0,
 				draw=0,
-				rsum,gsum,bsum,
+				rsum,gsum,bsum,asum,
 				tp,bp,
 				l, t, r, b, drb, dlt,
-				rgb_one = _self.rgb_one,
-		    	rgb_two = _self.rgb_two,
+				rgb_one = _self.color_one,
+		    	rgb_two = _self.color_two,
 				rmatch = rgb_one.r * 3 + rgb_two.r * 3,
 				gmatch = rgb_one.g * 3 + rgb_two.g * 3,
 				bmatch = rgb_one.b * 3 + rgb_two.b * 3,
+				amatch = rgb_one.a * 3 + rgb_two.a * 3,
 				pixel;
 
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
@@ -165,6 +172,7 @@
 				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
 				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
 				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b;
+				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a;
 
 				pixel = _self.getPixel(id,col,row,width);
 
@@ -180,20 +188,26 @@
 					draw = 1;
 					pixel.b = (pixel.b == rgb_one.b) ? rgb_two.b : rgb_one.b;
 				}
-
-				if (draw) {
-					ctx.fillStyle = _self.getStyle(pixel);
-					ctx.fillRect(col,row,scale,scale);
+				if (asum == amatch) {
+					draw = 1;
+					pixel.a = (pixel.a == rgb_one.a) ? rgb_two.a : rgb_one.a;
 				}
 
-				i++;
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
 				if(col > width - 1 - scale) {
 					col = 0;
 					row += scale;
 				} else {
 					col += scale;
 				}
+				i++;
 			}
+			ctx.putImageData(imageData, 0, 0);
 		};
 
 		this.getPixelTotal = function(imageData, x, y) {
@@ -223,6 +237,20 @@
 			_self.iterate();
 		};
 
+		this.fillSquare = function(orig,sizew,sizeh,rgba) { //id,orig,rgba,size,width) {
+			//console.log('fillSquare sizew: ' + sizew);
+			var i,j,offset;
+			for(i=0; i<sizeh; i++) {
+		    	for(j=0; j<sizew; j++) {
+		    		offset = orig + width * 4 * i + 4 * j;
+		    		imageData.data[offset + 0] = rgba.r;
+	        		imageData.data[offset + 1] = rgba.g;
+	        		imageData.data[offset + 2] = rgba.b;
+	        		imageData.data[offset + 3] = rgba.a;
+	        	}
+	        }
+
+		}
 		///////////////////////////////////////////////////////
 		// public methods
 		///////////////////////////////////////////////////////
@@ -268,8 +296,6 @@
 			console.log('setColors', c1, c2);
 			_self.color_one = c1;
 			_self.color_two = c2;
-			_self.rgb_one = TA.hexToRGB(c1),
-			_self.rgb_two = TA.hexToRGB(c2);
 			_self.stopLoop();
 			_self.initLattice();
 		};
