@@ -16,51 +16,62 @@
     </head>
     <body>
 
-        <canvas id="canvas" width="500" height="500"></canvas>
-
         <div class="container">
-            <div class="row">
-                <div class="col-xs-8">
-                    <form class="form-inline">
-                        <div class="form-group">
-                            <label for="scale">scale</label>
-                            <input id="scale" name="scale" type="number" class="form-control" placeholder="scale" value="4" min="1" max="20" step="1">
+            <div class="row" style="margin-top: 1em;">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="type">type</label>
+                        <!--<div class="input-group">
+                            <input id="seeds" name="scale" type="number" class="form-control" placeholder="seeds" value="1" min="1" max="100" step="15">
+                            <div class="input-group-addon">%</div>
+                        </div>-->
+                        <select class="form-control" id="type" name="type">
+                            <option value="4A">4A</option>
+                            <option value="4ARGB" selected="selected">4A RGB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="scale">scale</label>
+                        <input id="scale" name="scale" type="number" class="form-control" placeholder="scale" value="4" min="1" max="20" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="seeds">seeds</label>
+                        <!--<div class="input-group">
+                            <input id="seeds" name="scale" type="number" class="form-control" placeholder="seeds" value="1" min="1" max="100" step="15">
+                            <div class="input-group-addon">%</div>
+                        </div>-->
+                        <select class="form-control" id="seeds" name="seeds">
+                            <option value="1">1</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="50" selected="selected">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="300">300</option>
+                            <option value="500">500</option>
+                            <option value="800">800</option>
+                            <option value="3000">3000</option>
+                            <option value="10000">10000</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <label for="colorpicker1">color 1</label>
+                            <input type="text" value="333" name="colorpicker1" id="colorpicker1" class="pick-a-color form-control">
                         </div>
-                        <div class="form-group">
-                            <label for="seeds">seeds</label>
-                            <!--<div class="input-group">
-                                <input id="seeds" name="scale" type="number" class="form-control" placeholder="seeds" value="1" min="1" max="100" step="15">
-                                <div class="input-group-addon">%</div>
-                            </div>-->
-                            <select class="form-control" id="seeds" name="seeds">
-                                <option value="1">1</option>
-                                <option value="5">5</option>
-                                <option value="10">10</option>
-                                <option value="50" selected="selected">50</option>
-                                <option value="100">100</option>
-                                <option value="200">200</option>
-                                <option value="300">300</option>
-                                <option value="500">500</option>
-                                <option value="800">800</option>
-                                <option value="3000">3000</option>
-                                <option value="10000">10000</option>
-                            </select>
+                        <div class="col-xs-6">
+                            <label for="colorpicker2">color 2</label>
+                            <input type="text" value="EEE" name="colorpicker2" id="colorpicker2" class="pick-a-color form-control">
                         </div>
-                        <label for="colorpicker1">color 1</label>
-                        <input type="text" value="333" name="colorpicker1" id="colorpicker1" class="pick-a-color form-control">
-                        <label for="colorpicker2">color 2</label>
-                        <input type="text" value="EEE" name="colorpicker2" id="colorpicker2" class="pick-a-color form-control">
-                    </form>
-                </div>
-                <div class="col-xs-4">
-                    <div class="btn-group" role="group" aria-label="">
+                    </div>
+                    <div class="btn-group" role="group" aria-label="" style="margin-top: 1em;">
                         <button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
                         <button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                        <!--<button id="stop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span></button>-->
+                    <!--<button id="stop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span></button>-->
                     </div>
                 </div>
-                <div class="col-xs-4">
-
+                <div class="col-sm-9">
+                    <canvas id="canvas" width="500" height="500"></canvas>
                 </div>
             </div>
         </div>

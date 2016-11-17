@@ -16,8 +16,8 @@
 
 		$.extend(this, defaults, config);
 
-		this.rgb_one = TA.hexToRGB(this.color_one);
-		this.rgb_two = TA.hexToRGB(this.color_two);
+		this.rgb_one = {r:33,g:33,b:33,a:10}; //TA.hexToRGB(this.color_one);
+		this.rgb_two = {r:200,g:200,b:200,a:200}; //TA.hexToRGB(this.color_two);
 
 		this.init();
 
@@ -54,7 +54,7 @@
 		this.initLattice = function() {
 
 			//console.log('TA::initLattice');
-
+			console.log(imageData.data[0]);
 			var i=0,
 				row=0,
 				col=0,
@@ -68,18 +68,12 @@
 
 			    //console.log('row: ' + row + '\t\t col: ' + col);
 
-			    if (row / scale % 2 == 0) {
-			      if (col / scale % 2 == 0) {
+			    if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
+			    	((row / scale % 2 != 0) && (col / scale % 2 != 0))
+			    ) {
 			        ctx.fillStyle = _self.getStyle(rgb_one);
-			      } else {
-			      	ctx.fillStyle = _self.getStyle(rgb_two);
-			      }
 			    } else {
-			      if (col / scale % 2 != 0) {
-			      	ctx.fillStyle = _self.getStyle(rgb_one);
-			      } else {
 			      	ctx.fillStyle = _self.getStyle(rgb_two);
-			      }
 			    }
 
 			    ctx.moveTo(col-scale,row-scale);
@@ -93,7 +87,8 @@
 					col += scale;
 				}
 			}
-
+			imageData = ctx.getImageData(0, 0, width, height),
+			console.log(imageData.data[0]);
 			_self.seedLattice();
 
 		};
@@ -121,6 +116,7 @@
 			    if (Math.round(Math.random())) seed_rgba.r = rgb_two.r;
 			    if (Math.round(Math.random())) seed_rgba.g = rgb_two.g;
 			    if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
+			    if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
 
 			    ctx.fillStyle = _self.getStyle(seed_rgba);
 			    ctx.moveTo(seed_c,seed_r);
@@ -159,18 +155,18 @@
 				tp = (row > 0) ? row-scale : (Math.ceil(height/scale) * scale - scale);
 				bp = (row < (Math.ceil(height/scale) * scale - scale)) ? row+scale : 0;
 
-				t = _self.getPixelObject(id, col, tp, width);
-				b = _self.getPixelObject(id, col, bp, width);
-				l = _self.getPixelObject(id, col-scale, row, width);
-				r = _self.getPixelObject(id, col+scale, row, width);
-				drb = _self.getPixelObject(id, col+scale, bp, width);
-				dlt = _self.getPixelObject(id, col-scale, tp, width);
+				t = _self.getPixel(id, col, tp, width);
+				b = _self.getPixel(id, col, bp, width);
+				l = _self.getPixel(id, col-scale, row, width);
+				r = _self.getPixel(id, col+scale, row, width);
+				drb = _self.getPixel(id, col+scale, bp, width);
+				dlt = _self.getPixel(id, col-scale, tp, width);
 
 				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
 				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
 				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b;
 
-				pixel = _self.getPixelObject(id,col,row,width);
+				pixel = _self.getPixel(id,col,row,width);
 
 				if (rsum == rmatch) {
 					draw = 1;
@@ -209,20 +205,11 @@
 			return r + g + b;
 		}
 
-		this.getPixel = function(imageData, x, y) {
-			var r, g, b, a, offset = x * 4 + y * 4 * imageData.width;
-			r = imageData.data[offset];
-			g = imageData.data[offset + 1];
-			b = imageData.data[offset + 2];
-			a = imageData.data[offset + 3];
-			return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-		}
-
 		this.getStyle = function(rgba) {
-			return "rgb(" + rgba.r + "," + rgba.g + "," + rgba.b + ")";
+			return "rgba(" + rgba.r + "," + rgba.g + "," + rgba.b + "," + rgba.a/255 + ")";
 		};
 
-		this.getPixelObject = function(imageData, x, y) {
+		this.getPixel = function(imageData, x, y) {
 			var r, g, b, a, offset = x * 4 + y * 4 * imageData.width;
 			r = imageData.data[offset];
 			g = imageData.data[offset + 1];

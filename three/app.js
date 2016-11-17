@@ -84,7 +84,8 @@
 			$('#restart').on('click', _self.onRestartClick);
 			$('#scale').on('change', _self.onScaleChange);
 			$('#seeds').on('change', _self.onSeedsChange);
-			$('#playpause').click();
+
+			//$('#playpause').click();
 		};
 
 		/**
