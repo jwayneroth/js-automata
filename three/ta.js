@@ -202,7 +202,9 @@
 				col=0,
 				draw=0,
 				rsum,gsum,bsum,asum,
-				tp,bp,
+				tp,bp,pp,np,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
 				l, t, r, b,
 				rgb_one = _self.color_one,
 				rgb_two = _self.color_two,
@@ -215,8 +217,10 @@
 
 				draw = 0;
 
-				tp = (row > 0) ? row-scale : (Math.ceil(height/scale) * scale - scale);
-				bp = (row < (Math.ceil(height/scale) * scale - scale)) ? row+scale : 0;
+				tp = (row > 0) ? row-scale : last_row;
+				bp = (row < last_row) ? row+scale : 0;
+				pp = (col > 0) ? col-scale : last_col;
+				np = (col < last_col) ? col+scale : 0;
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
@@ -277,7 +281,9 @@
 				col=0,
 				draw=0,
 				rsum,gsum,bsum,asum,
-				tp,bp,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				tp,bp,pp,np,
 				l, t, r, b, drb, dlt,
 				rgb_one = _self.color_one,
 		    	rgb_two = _self.color_two,
@@ -291,15 +297,17 @@
 
 				draw = 0;
 
-				tp = (row > 0) ? row-scale : (Math.ceil(height/scale) * scale - scale);
-				bp = (row < (Math.ceil(height/scale) * scale - scale)) ? row+scale : 0;
+				tp = (row > 0) ? row-scale : last_row;
+				bp = (row < last_row) ? row+scale : 0;
+				pp = (col > 0) ? col-scale : last_col;
+				np = (col < last_col) ? col+scale : 0;
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, col-scale, row, width);
-				r = _self.getPixel(id, col+scale, row, width);
-				drb = _self.getPixel(id, col+scale, bp, width);
-				dlt = _self.getPixel(id, col-scale, tp, width);
+				l = _self.getPixel(id, pp, row, width);
+				r = _self.getPixel(id, np, row, width);
+				drb = _self.getPixel(id, np, bp, width);
+				dlt = _self.getPixel(id, pp, tp, width);
 
 				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
 				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
