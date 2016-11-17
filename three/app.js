@@ -59,7 +59,7 @@
 			c2.a = Math.round(c2.a * 255);
 
 			ta.setColors(c1,c2);
-			_self.setPaused();
+
 		};
 
 		this.onBGColorChange = function(evt) {

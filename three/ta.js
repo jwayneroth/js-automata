@@ -439,13 +439,13 @@
 
 		this.setScale = function(scale) {
 			//console.log('TA::setScale \t: ' + scale);
-			if (scale < _self.scale || !_self.animeID) {
+			//if (scale < _self.scale || !_self.animeID) {
 				_self.stopLoop();
 				_self.scale = scale;
 				_self.initLattice();
-			} else {
-				_self.scale = scale;
-			}
+			//} else {
+			//	_self.scale = scale;
+			//}
 		};
 
 		this.setSeeds = function(seeds) {
