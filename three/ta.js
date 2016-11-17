@@ -301,26 +301,26 @@
 				drb = _self.getPixel(id, col+scale, bp, width);
 				dlt = _self.getPixel(id, col-scale, tp, width);
 
-				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
-				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
-				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b;
-				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a;
+				rsum = [t.r, b.r, l.r, r.r, drb.r, dlt.r];
+				gsum = [t.g, b.g, l.g, r.g, drb.g, dlt.g];
+				bsum = [t.b, b.b, l.b, r.b, drb.b, dlt.b];
+				asum = [t.a, b.a, l.a, r.a, drb.a, dlt.a];
 
 				pixel = _self.getPixel(id,col,row,width);
 
-				if (rsum == rmatch) {
+				if (_self.countInArray(rsum, rgb_one.r) == 3) {
 					draw = 1;
 					pixel.r = (pixel.r == rgb_one.r) ? rgb_two.r : rgb_one.r;
 				}
-				if (gsum == gmatch) {
+				if (_self.countInArray(gsum, rgb_one.g) == 3) {
 					draw = 1;
 					pixel.g = (pixel.g == rgb_one.g) ? rgb_two.g : rgb_one.g;
 				}
-				if (bsum == bmatch) {
+				if (_self.countInArray(bsum, rgb_one.b) == 3) {
 					draw = 1;
 					pixel.b = (pixel.b == rgb_one.b) ? rgb_two.b : rgb_one.b;
 				}
-				if (asum == amatch) {
+				if (_self.countInArray(asum, rgb_one.a) == 3) {
 					draw = 1;
 					pixel.a = (pixel.a == rgb_one.a) ? rgb_two.a : rgb_one.a;
 				}
@@ -341,6 +341,14 @@
 			}
 			ctx.putImageData(imageData, 0, 0);
 		};
+
+		this.countInArray = function(arr, needle) {
+			var i=0, count=0;
+			for(i=0; i<arr.length; i++) {
+				if (arr[i] == needle) count++;
+			}
+			return count;
+		}
 
 		this.getPixelTotal = function(imageData, x, y) {
 			var r, g, b, a, offset = x * 4 + y * 4 * imageData.width;
@@ -395,11 +403,13 @@
 			} else {
 				_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
 			}
+			$(window).trigger('loopStarted');
 		};
 
 		this.stopLoop = function() {
 			window.cancelAnimationFrame(_self.animeID);
         	_self.animeID = null;
+        	$(window).trigger('loopStopped');
 		};
 
 		///////////////////////////////////////////////////////
@@ -429,9 +439,13 @@
 
 		this.setScale = function(scale) {
 			//console.log('TA::setScale \t: ' + scale);
-			_self.scale = scale;
-			_self.stopLoop();
-			_self.initLattice();
+			if (scale < _self.scale || !_self.animeID) {
+				_self.stopLoop();
+				_self.scale = scale;
+				_self.initLattice();
+			} else {
+				_self.scale = scale;
+			}
 		};
 
 		this.setSeeds = function(seeds) {

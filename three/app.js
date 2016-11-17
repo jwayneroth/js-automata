@@ -28,37 +28,24 @@
 
 		this.onTypeChange = function() {
 			ta.setTAType($('#tatype').val());
-			_self.setPaused();
 		};
 
 		this.onPlayPauseClick = function() {
 			//console.log('App::onPlayPauseClick');
-			if (!ta.animeID) {
-				$('#playpause').children('span')
-					.removeClass('glyphicon-play')
-					.addClass('glyphicon-pause');
-			} else {
-				_self.setPaused();
-			}
 			ta.toggleLoop();
 		};
 
 		this.onRestartClick = function() {
 			ta.restart();
-			_self.setPaused();
 		};
 
 		this.onScaleChange = function() {
 			//console.log('App::onScaleChange');
 			ta.setScale(parseInt($('#scale').val()));
-			_self.setPaused();
 		};
 
 		this.onSeedsChange = function() {
-
 			ta.setSeeds(parseInt($('#seeds').val()));
-			_self.setPaused();
-
 		};
 
 		this.onColorChange = function(evt) {
@@ -80,10 +67,16 @@
 			document.getElementById('canvas').style.backgroundColor = evt.color.toHex();
 		};
 
-		this.setPaused = function() {
+		this.onLoopStart = function() {
 			$('#playpause').children('span')
-					.removeClass('glyphicon-pause')
-					.addClass('glyphicon-play');
+				.removeClass('glyphicon-play')
+				.addClass('glyphicon-pause');
+		};
+
+		this.onLoopStop = function() {
+			$('#playpause').children('span')
+				.removeClass('glyphicon-pause')
+				.addClass('glyphicon-play');
 		};
 
 		/**
@@ -94,6 +87,9 @@
 			console.log('App::docReady');
 
 			var canvas, c1, c2;
+
+			$(window).on('loopStarted', _self.onLoopStart);
+			$(window).on('loopStopped', _self.onLoopStop);
 
 			$('#tatype').on('change', _self.onTypeChange);
 
