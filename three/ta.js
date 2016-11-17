@@ -301,26 +301,26 @@
 				drb = _self.getPixel(id, col+scale, bp, width);
 				dlt = _self.getPixel(id, col-scale, tp, width);
 
-				rsum = [t.r, b.r, l.r, r.r, drb.r, dlt.r];
-				gsum = [t.g, b.g, l.g, r.g, drb.g, dlt.g];
-				bsum = [t.b, b.b, l.b, r.b, drb.b, dlt.b];
-				asum = [t.a, b.a, l.a, r.a, drb.a, dlt.a];
+				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
+				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
+				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b;
+				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a;
 
 				pixel = _self.getPixel(id,col,row,width);
 
-				if (_self.countInArray(rsum, rgb_one.r) == 3) {
+				if (rsum == rmatch) {
 					draw = 1;
 					pixel.r = (pixel.r == rgb_one.r) ? rgb_two.r : rgb_one.r;
 				}
-				if (_self.countInArray(gsum, rgb_one.g) == 3) {
+				if (gsum == gmatch) {
 					draw = 1;
 					pixel.g = (pixel.g == rgb_one.g) ? rgb_two.g : rgb_one.g;
 				}
-				if (_self.countInArray(bsum, rgb_one.b) == 3) {
+				if (bsum == bmatch) {
 					draw = 1;
 					pixel.b = (pixel.b == rgb_one.b) ? rgb_two.b : rgb_one.b;
 				}
-				if (_self.countInArray(asum, rgb_one.a) == 3) {
+				if (asum == amatch) {
 					draw = 1;
 					pixel.a = (pixel.a == rgb_one.a) ? rgb_two.a : rgb_one.a;
 				}
