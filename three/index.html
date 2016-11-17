@@ -59,6 +59,7 @@
                         <label for="seeds">seeds</label>
                         <select class="form-control" id="seeds" name="seeds">
                             <option value="1">1</option>
+                            <option value="2">2</option>
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="50" selected="selected">50</option>
@@ -86,10 +87,29 @@
                         <input type="text" value="rgb(200,120,108)" class="form-control" />
                         <span class="input-group-addon"><i></i></span>
                     </div>
-                    <div class="btn-group" role="group" aria-label="" style="margin-top: 1em;">
-                        <button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
-                        <button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                    <!--<button id="stop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span></button>-->
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="btn-group" role="group" aria-label="" style="margin-top: 1em;">
+                                <button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
+                                <button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="input-group" style="margin-top: 1em;">
+                                <select class="form-control" id="fps" name="fps">
+                                    <option value="4">4</option>
+                                    <option value="8">8</option>
+                                    <option value="12">12</option>
+                                    <option value="16">16</option>
+                                    <option value="20">20</option>
+                                    <option value="24" selected="selected">24</option>
+                                    <option value="28">28</option>
+                                    <option value="32">32</option>
+                                    <option value="36">36</option>
+                                </select>
+                                <div class="input-group-addon">fps</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

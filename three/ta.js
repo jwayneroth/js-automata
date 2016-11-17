@@ -8,12 +8,15 @@
 			type: '4ARGBA',
 			scale: 10,
 			seeds: .1,
+			fps: 18,
 			color_one: {r:255,g:255,b:255,a:255},
 			color_two: {r:33,g:33,b:33,a:100},
 			animeID: null
 		};
 
 		$.extend(this, defaults, config);
+
+		this.rate = 1000/this.fps;
 
 		//overrides for testing
 		//this.type = '1';
@@ -387,7 +390,12 @@
 
 		this.draw4AFrame = function() {
 			_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
-			_self.iterate4A();
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterate4A();
+			}
 		};
 
 		this.fillSquare = function(orig,sizew,sizeh,rgba) { //id,orig,rgba,size,width) {
@@ -406,6 +414,7 @@
 		}
 
 		this.startLoop = function() {
+			_self.lastRender = Date.now();
 			if (_self.type == '4A' || _self.type == '4ARGBA') {
 				_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
 			} else {
@@ -469,6 +478,11 @@
 			_self.stopLoop();
 			_self.initLattice();
 		};
+
+		this.setFPS = function(fps) {
+			_self.fps = fps;
+			_self.rate = 1000/fps;
+		}
 
 		///////////////////////////////////////////////////////
 		// main

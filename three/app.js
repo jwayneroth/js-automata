@@ -79,6 +79,10 @@
 				.addClass('glyphicon-play');
 		};
 
+		this.onFPSChange = function() {
+			ta.setFPS($('#fps').val());
+		};
+
 		/**
 		 * docReady
 		 */
@@ -104,6 +108,8 @@
 			$('#scale').on('change', _self.onScaleChange);
 			$('#seeds').on('change', _self.onSeedsChange);
 
+			$('#fps').on('change', _self.onFPSChange);
+
 			canvas = document.getElementById('canvas');
 			canvas.style.backgroundColor = $('#cp3').data('colorpicker').color.toHex();
 
@@ -115,6 +121,7 @@
 
 			ta = new scope.TA({
 				type: $('#tatype').val(),
+				fps: $('#fps').val(),
 				canvas: canvas,
 				scale: parseInt($('#scale').val()),
 				seeds: parseInt($('#seeds').val()),
