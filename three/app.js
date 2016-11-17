@@ -26,6 +26,11 @@
 		// methods
 		///////////////////////////////////////////////////////
 
+		this.onTypeChange = function() {
+			ta.setTAType($('#tatype').val());
+			_self.setPaused();
+		};
+
 		this.onPlayPauseClick = function() {
 			//console.log('App::onPlayPauseClick');
 			if (!ta.animeID) {
@@ -41,7 +46,7 @@
 		this.onRestartClick = function() {
 			ta.restart();
 			_self.setPaused();
-		}
+		};
 
 		this.onScaleChange = function() {
 			//console.log('App::onScaleChange');
@@ -54,7 +59,7 @@
 			ta.setSeeds(parseInt($('#seeds').val()));
 			_self.setPaused();
 
-		}
+		};
 
 		this.onColorChange = function(evt) {
 
@@ -68,18 +73,18 @@
 
 			ta.setColors(c1,c2);
 			_self.setPaused();
-		}
+		};
 
 		this.onBGColorChange = function(evt) {
 			//console.log('App::onBGColorChange');
 			document.getElementById('canvas').style.backgroundColor = evt.color.toHex();
-		}
+		};
 
 		this.setPaused = function() {
 			$('#playpause').children('span')
 					.removeClass('glyphicon-pause')
 					.addClass('glyphicon-play');
-		}
+		};
 
 		/**
 		 * docReady
@@ -89,6 +94,8 @@
 			console.log('App::docReady');
 
 			var canvas, c1, c2;
+
+			$('#tatype').on('change', _self.onTypeChange);
 
 			$("#cp1,#cp2").colorpicker({});
 			$("#cp3").colorpicker({format:'rgb'});
@@ -111,6 +118,7 @@
 			c2.a = Math.round(c2.a * 255);
 
 			ta = new scope.TA({
+				type: $('#tatype').val(),
 				canvas: canvas,
 				scale: parseInt($('#scale').val()),
 				seeds: parseInt($('#seeds').val()),
@@ -118,7 +126,7 @@
 				color_two: c2
 			});
 
-			//$('#playpause').click();
+			$('#playpause').click();
 
 		};
 

@@ -18,16 +18,21 @@
 
         <div class="container">
             <div class="row" style="margin-top: 1em;">
-                <div class="col-sm-3">
+                <div class="col-sm-9 col-sm-push-3">
+                    <canvas id="canvas" width="500" height="500"></canvas>
+                </div>
+                <div class="col-sm-3 col-sm-pull-9">
                     <div class="form-group">
                         <label for="type">type</label>
                         <!--<div class="input-group">
                             <input id="seeds" name="scale" type="number" class="form-control" placeholder="seeds" value="1" min="1" max="100" step="15">
                             <div class="input-group-addon">%</div>
                         </div>-->
-                        <select class="form-control" id="type" name="type">
+                        <select class="form-control" id="tatype" name="tatype">
+                            <option value="1" selected="selected">1</option>
+                            <option value="1RGBA">1 RGBA</option>
                             <option value="4A">4A</option>
-                            <option value="4ARGBA" selected="selected">4A RGBA</option>
+                            <option value="4ARGBA">4A RGBA</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -87,9 +92,6 @@
                     <!--<button id="stop" type="button" class="btn btn-default"><span class="glyphicon glyphicon-stop" aria-hidden="true"></span></button>-->
                     </div>
                 </div>
-                <div class="col-sm-9">
-                    <canvas id="canvas" width="500" height="500"></canvas>
-                </div>
             </div>
         </div>
 
@@ -97,7 +99,6 @@
         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
         <script>window.jQuery || document.write('<script src="../js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="../js/vendor/tinycolor-0.9.15.min.js"></script>
         <script src="../js/vendor/bootstrap-colorpicker.min.js"></script>
         <script src="ta.js"></script>
         <script src="app.js"></script>

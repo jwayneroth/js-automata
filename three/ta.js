@@ -5,6 +5,7 @@
 		var config = config || {};
 
 		var defaults = {
+			type: '4ARGBA',
 			scale: 10,
 			seeds: .1,
 			color_one: {r:255,g:255,b:255,a:255},
@@ -13,6 +14,9 @@
 		};
 
 		$.extend(this, defaults, config);
+
+		//overrides for testing
+		//this.type = '1';
 
 		this.init();
 
@@ -50,12 +54,64 @@
 
 			//console.log('TA::initLattice');
 
+			if (_self.type == '1' || _self.type == '1RGBA') {
+				_self.type1Lattice();
+				//ctx.clearRect(0, 0, width, height);
+				//imageData = ctx.getImageData(0, 0, width, height);
+				//_self.seedLattice(true);
+			} else if (_self.type == '4A' || _self.type == '4ARGBA') {
+				_self.type4Lattice();
+			}
+
+		}
+
+		/**
+		 * type1Lattice
+		 */
+		this.type1Lattice = function() {
+
+			var i=0,
+				row=0,
+				col=0,
+				scale = _self.scale,
+				rgb_two = _self.color_two,
+		    	offset,
+		    	sizew;
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+			    offset = col * 4 + row * 4 * width;
+
+				sizew = (col + scale <= width) ? scale : width - col;
+
+			     _self.fillSquare(offset, sizew, scale, rgb_two);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+
+			ctx.putImageData(imageData, 0, 0);
+
+			_self.seedLattice((_self.type == '1RGBA'));
+
+		};
+
+		/**
+		 * type4Lattice
+		 */
+		this.type4Lattice = function() {
+
 			var i=0,
 				row=0,
 				col=0,
 				scale = _self.scale,
 				rgb_one = _self.color_one,
 		    	rgb_two = _self.color_two,
+		    	square_rgb,
 		    	offset,
 		    	sizew,
 		    	square_rgb;
@@ -89,14 +145,14 @@
 
 			ctx.putImageData(imageData, 0, 0);
 
-			_self.seedLattice();
+			_self.seedLattice((_self.type == '4ARGBA'));
 
 		};
 
 		/**
 		 * seedLattice
 		 */
-		this.seedLattice = function() {
+		this.seedLattice = function(rgba) {
 
 			var i=0,
 				scale = _self.scale,
@@ -115,11 +171,12 @@
 			    seed_c = scale * Math.floor(Math.random() * (width/scale));
 			    seed_rgba = {r:rgb_one.r,g:rgb_one.g,b:rgb_one.b,a:rgb_one.a};
 
-			    if (Math.round(Math.random())) seed_rgba.r = rgb_two.r;
-			    if (Math.round(Math.random())) seed_rgba.g = rgb_two.g;
-			    if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
-			    if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
-
+			    if (rgba) {
+				    if (Math.round(Math.random())) seed_rgba.r = rgb_two.r;
+				    if (Math.round(Math.random())) seed_rgba.g = rgb_two.g;
+				    if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
+				    if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
+				}
 			    offset = seed_c * 4 + seed_r * 4 * width;
 
 				sizew = (seed_c + scale <= width) ? scale : width - seed_c;
@@ -133,9 +190,84 @@
 		};
 
 		/**
-		 * iterate
+		 * iterate1
 		 */
-		this.iterate = function() {
+		this.iterate1 = function() {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,
+				row=0,
+				col=0,
+				draw=0,
+				rsum,gsum,bsum,asum,
+				tp,bp,
+				l, t, r, b,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				rmatch = rgb_one.r * 1 + rgb_two.r * 3,
+				gmatch = rgb_one.g * 1 + rgb_two.g * 3,
+				bmatch = rgb_one.b * 1 + rgb_two.b * 3,
+				amatch = rgb_one.a * 1 + rgb_two.a * 3;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				draw = 0;
+
+				tp = (row > 0) ? row-scale : (Math.ceil(height/scale) * scale - scale);
+				bp = (row < (Math.ceil(height/scale) * scale - scale)) ? row+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				b = _self.getPixel(id, col, bp, width);
+				l = _self.getPixel(id, col-scale, row, width);
+				r = _self.getPixel(id, col+scale, row, width);
+
+				rsum = t.r + b.r + l.r + r.r;
+				gsum = t.g + b.g + l.g + r.g;
+				bsum = t.b + b.b + l.b + r.b;
+				asum = t.a + b.a + l.a + r.a;
+
+				pixel = _self.getPixel(id,col,row,width);
+
+				if (rsum == rmatch && pixel.r != rgb_one.r) {
+					draw = 1;
+					pixel.r = (pixel.r == rgb_one.r) ? rgb_two.r : rgb_one.r;
+				}
+				if (gsum == gmatch && pixel.g != rgb_one.g) {
+					draw = 1;
+					pixel.g = (pixel.g == rgb_one.g) ? rgb_two.g : rgb_one.g;
+				}
+				if (bsum == bmatch && pixel.b != rgb_one.b) {
+					draw = 1;
+					pixel.b = (pixel.b == rgb_one.b) ? rgb_two.b : rgb_one.b;
+				}
+				if (asum == amatch && pixel.a != rgb_one.a) {
+					draw = 1;
+					pixel.a = (pixel.a == rgb_one.a) ? rgb_two.a : rgb_one.a;
+				}
+
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+		};
+
+		/**
+		 * iterate4A
+		 */
+		this.iterate4A = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
@@ -234,7 +366,12 @@
 
 		this.drawFrame = function() {
 			_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
-			_self.iterate();
+			_self.iterate1();
+		};
+
+		this.draw4AFrame = function() {
+			_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
+			_self.iterate4A();
 		};
 
 		this.fillSquare = function(orig,sizew,sizeh,rgba) { //id,orig,rgba,size,width) {
@@ -251,16 +388,36 @@
 	        }
 
 		}
+
+		this.startLoop = function() {
+			if (_self.type == '4A' || _self.type == '4ARGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
+			} else {
+				_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
+			}
+		};
+
+		this.stopLoop = function() {
+			window.cancelAnimationFrame(_self.animeID);
+        	_self.animeID = null;
+		};
+
 		///////////////////////////////////////////////////////
 		// public methods
 		///////////////////////////////////////////////////////
+
+		this.setTAType = function(type) {
+			_self.type = type;
+			_self.stopLoop();
+			_self.initLattice();
+		};
 
 		this.restart = function() {
 			if (_self.animeID) {
 				_self.stopLoop();
 			}
 			_self.initLattice();
-		}
+		};
 
 		this.toggleLoop = function() {
 			if (_self.animeID) {
@@ -268,15 +425,6 @@
 			} else {
 				_self.startLoop();
 			}
-		}
-
-		this.startLoop = function() {
-			_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
-		};
-
-		this.stopLoop = function() {
-			window.cancelAnimationFrame(_self.animeID);
-        	_self.animeID = null;
 		};
 
 		this.setScale = function(scale) {
@@ -293,7 +441,7 @@
 		};
 
 		this.setColors = function(c1,c2) {
-			console.log('setColors', c1, c2);
+			//console.log('setColors', c1, c2);
 			_self.color_one = c1;
 			_self.color_two = c2;
 			_self.stopLoop();
@@ -307,20 +455,6 @@
 		_self.initLattice();
 
 	}; // end init
-
-	TA.hexToRGB = function(hex) {
-	    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-	    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-	    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
-	        return r + r + g + g + b + b;
-	    });
-	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	    return result ? {
-	        r: parseInt(result[1], 16),
-	        g: parseInt(result[2], 16),
-	        b: parseInt(result[3], 16)
-	    } : null;
-	};
 
 	scope.TA = TA;
 
