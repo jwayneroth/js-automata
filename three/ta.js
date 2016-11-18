@@ -19,7 +19,10 @@
 		this.rate = 1000/this.fps;
 
 		//overrides for testing
-		//this.type = '1';
+		//this.type = '110';
+		//this.rate = 1000;
+		//this.scale = 100;
+		//this.seeds = 1;
 
 		this.init();
 
@@ -57,8 +60,13 @@
 
 			//console.log('TA::initLattice');
 
-			if (_self.type == '1' || _self.type == '1RGBA') {
-				_self.type1Lattice();
+			if (_self.type == '1' || _self.type == '1RGBA' ||
+				_self.type == 'B3S23' || _self.type == 'B3S23RGBA' ||
+				_self.type == '30' || _self.type == '30RGBA' ||
+				_self.type == '90' || _self.type == '90RGBA' ||
+				_self.type == '110' || _self.type == '110RGBA'
+			) {
+				_self.solidLattice();
 				//ctx.clearRect(0, 0, width, height);
 				//imageData = ctx.getImageData(0, 0, width, height);
 				//_self.seedLattice(true);
@@ -69,9 +77,9 @@
 		}
 
 		/**
-		 * type1Lattice
+		 * solidLattice
 		 */
-		this.type1Lattice = function() {
+		this.solidLattice = function() {
 
 			var i=0,
 				row=0,
@@ -99,7 +107,11 @@
 
 			ctx.putImageData(imageData, 0, 0);
 
-			_self.seedLattice((_self.type == '1RGBA'));
+			_self.seedLattice((_self.type == '1RGBA' ||
+			                   _self.type == 'B3S23RGBA' ||
+			                   _self.type == '30RGBA' ||
+			                   _self.type == '90RGBA' ||
+			                   _self.type == '110RGBA'));
 
 		};
 
@@ -149,6 +161,48 @@
 			ctx.putImageData(imageData, 0, 0);
 
 			_self.seedLattice((_self.type == '4ARGBA'));
+
+		};
+
+		/**
+		 * implementColors
+		 */
+		this.implementColors = function(c1,c2) {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				i=0,
+				row=0,
+				col=0,
+				scale = _self.scale,
+				rgb_one = _self.color_one,
+		    	offset,
+		    	sizew;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+			    offset = col * 4 + row * 4 * width;
+
+				sizew = (col + scale <= width) ? scale : width - col;
+
+				pixel = _self.getPixel(id,col,row,width);
+
+				pixel.r = (pixel.r == rgb_one.r) ? c1.r : c2.r;
+				pixel.g = (pixel.g == rgb_one.g) ? c1.g : c2.g;
+				pixel.b = (pixel.b == rgb_one.b) ? c1.b : c2.b;
+				pixel.a = (pixel.a == rgb_one.a) ? c1.a : c2.a;
+
+			     _self.fillSquare(offset, sizew, scale, pixel);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+
+			ctx.putImageData(imageData, 0, 0);
 
 		};
 
@@ -227,8 +281,8 @@
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, col-scale, row, width);
-				r = _self.getPixel(id, col+scale, row, width);
+				l = _self.getPixel(id, pp, row, width);
+				r = _self.getPixel(id, np, row, width);
 
 				rsum = t.r + b.r + l.r + r.r;
 				gsum = t.g + b.g + l.g + r.g;
@@ -353,6 +407,380 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
+		/**
+		 * iterateLife
+		 */
+		this.iterateLife = function() {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,
+				row=0,
+				col=0,
+				draw=0,
+				rsum,gsum,bsum,asum,
+				tp,bp,pp,np,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				l, t, r, b, drb, dlt, dlb, drt,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				rmatch2 = rgb_one.r * 2 + rgb_two.r * 6,
+				gmatch2 = rgb_one.g * 2 + rgb_two.g * 6,
+				bmatch2 = rgb_one.b * 2 + rgb_two.b * 6,
+				amatch2 = rgb_one.a * 2 + rgb_two.a * 6;
+				rmatch3 = rgb_one.r * 3 + rgb_two.r * 5,
+				gmatch3 = rgb_one.g * 3 + rgb_two.g * 5,
+				bmatch3 = rgb_one.b * 3 + rgb_two.b * 5,
+				amatch3 = rgb_one.a * 3 + rgb_two.a * 5;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				draw = 0;
+
+				tp = (row > 0) ? row-scale : last_row;
+				bp = (row < last_row) ? row+scale : 0;
+				pp = (col > 0) ? col-scale : last_col;
+				np = (col < last_col) ? col+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				b = _self.getPixel(id, col, bp, width);
+				l = _self.getPixel(id, pp, row, width);
+				r = _self.getPixel(id, np, row, width);
+				drb = _self.getPixel(id, np, bp, width);
+				dlt = _self.getPixel(id, pp, tp, width);
+				dlb = _self.getPixel(id, pp, bp, width);
+				drt = _self.getPixel(id, np, tp, width);
+
+				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r + dlb.r + drt.r;
+				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g + dlb.g + drt.g;
+				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b + dlb.b + drt.b;
+				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a + dlb.a + drt.a;
+
+				pixel = _self.getPixel(id,col,row,width);
+
+				// if live cell
+				if (pixel.r == rgb_one.r) {
+					// if no match, dies
+					if (rsum != rmatch2 && rsum != rmatch3) {
+						draw = 1;
+						pixel.r = rgb_two.r;
+					}
+				// dead cell born if match
+				} else if (rsum == rmatch3) {
+					draw = 1;
+					pixel.r = rgb_one.r;
+				}
+				if (pixel.g == rgb_one.g) {
+					if (gsum != gmatch2 && gsum != gmatch3) {
+						draw = 1;
+						pixel.g = rgb_two.g;
+					}
+				} else if (gsum == gmatch3) {
+					draw = 1;
+					pixel.g = rgb_one.g;
+				}
+				if (pixel.b == rgb_one.b) {
+					if (bsum != bmatch2 && bsum != bmatch3) {
+						draw = 1;
+						pixel.b = rgb_two.b;
+					}
+				} else if (bsum == bmatch3) {
+					draw = 1;
+					pixel.b = rgb_one.b;
+				}
+				if (pixel.a == rgb_one.a) {
+					if (asum != amatch2 && asum != amatch3) {
+						draw = 1;
+						pixel.a = rgb_two.a;
+					}
+				} else if (asum == amatch3) {
+					draw = 1;
+					pixel.a = rgb_one.a;
+				}
+
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+		};
+
+		/**
+		 * iterate30
+		 */
+		this.iterate30 = function() {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,
+				row=0,
+				col=0,
+				draw=0,
+				rsum,gsum,bsum,asum,
+				lp,rp,tp,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				tl, t, tr,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				rmatch1 = rgb_one.r + rgb_two.r * 2,
+				gmatch1 = rgb_one.g + rgb_two.g * 2,
+				bmatch1 = rgb_one.b + rgb_two.b * 2,
+				amatch1 = rgb_one.a + rgb_two.a * 2;
+				rmatch2 = rgb_one.r * 2 + rgb_two.r;
+				gmatch2 = rgb_one.g * 2 + rgb_two.g;
+				bmatch2 = rgb_one.b * 2 + rgb_two.b;
+				amatch2 = rgb_one.a * 2 + rgb_two.a;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				draw = 0;
+
+				tp = (row > 0) ? row-scale : last_row;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				tl = _self.getPixel(id, lp, tp, width);
+				tr = _self.getPixel(id, rp, tp, width);
+
+				rsum = t.r + tl.r + tr.r;
+				gsum = t.g + tl.g + tr.g;
+				bsum = t.b + tl.b + tr.b;
+				asum = t.a + tl.a + tr.a;
+
+				pixel = {r:rgb_two.r, g:rgb_two.g, b:rgb_two.b, a:rgb_two.a};
+				//pixel = _self.getPixel(id,col,row,width);
+
+				/*console.log(i + ') row:' + row/100 + ' col:' + col/100 +
+							' prev:' + pp/100 + ' next:' + np/100 +
+							' l:' + l.r + ' r:' + r.r +
+							' rsum:' + rsum);*/
+
+				if (rsum == rmatch1 || (rsum == rmatch2 && tl.r == rgb_two.r)) {
+					draw = 1;
+					pixel.r = rgb_one.r;
+				}
+
+				if (gsum == gmatch1 || (gsum == gmatch2 && tl.g == rgb_two.g)) {
+					draw = 1;
+					pixel.g = rgb_one.g;
+				}
+
+				if (bsum == bmatch1 || (bsum == bmatch2 && tl.b == rgb_two.b)) {
+					draw = 1;
+					pixel.b = rgb_one.b;
+				}
+
+				if (asum == amatch1 || (asum == amatch2 && tl.a == rgb_two.a)) {
+					draw = 1;
+					pixel.a = rgb_one.a;
+				}
+
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+		};
+
+		/**
+		 * iterate90
+		 */
+		this.iterate90 = function() {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,
+				row=0,
+				col=0,
+				draw=0,
+				rsum,gsum,bsum,asum,
+				lp,rp,tp,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				tl, t, tr,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				rmatch1 = rgb_one.r + rgb_two.r * 2,
+				gmatch1 = rgb_one.g + rgb_two.g * 2,
+				bmatch1 = rgb_one.b + rgb_two.b * 2,
+				amatch1 = rgb_one.a + rgb_two.a * 2;
+				rmatch2 = rgb_one.r * 2 + rgb_two.r;
+				gmatch2 = rgb_one.g * 2 + rgb_two.g;
+				bmatch2 = rgb_one.b * 2 + rgb_two.b;
+				amatch2 = rgb_one.a * 2 + rgb_two.a;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				draw = 0;
+
+				tp = (row > 0) ? row-scale : last_row;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				tl = _self.getPixel(id, lp, tp, width);
+				tr = _self.getPixel(id, rp, tp, width);
+
+				rsum = t.r + tl.r + tr.r;
+				gsum = t.g + tl.g + tr.g;
+				bsum = t.b + tl.b + tr.b;
+				asum = t.a + tl.a + tr.a;
+
+				pixel = {r:rgb_two.r, g:rgb_two.g, b:rgb_two.b, a:rgb_two.a};
+
+				if ((rsum == rmatch1 && t.r != rgb_one.r) || (rsum == rmatch2 && t.r == rgb_one.r)) {
+					draw = 1;
+					pixel.r = rgb_one.r;
+				}
+
+				if ((gsum == gmatch1 && t.g != rgb_one.g) || (gsum == gmatch2 && t.g == rgb_one.g)) {
+					draw = 1;
+					pixel.g = rgb_one.g;
+				}
+
+				if ((bsum == bmatch1 && t.b != rgb_one.b) || (bsum == bmatch2 && t.b == rgb_one.b)) {
+					draw = 1;
+					pixel.b = rgb_one.b;
+				}
+
+				if ((asum == amatch1 && t.a != rgb_one.a) || (asum == amatch2 && t.a == rgb_one.a)) {
+					draw = 1;
+					pixel.a = rgb_one.a;
+				}
+
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+		};
+
+		/**
+		 * iterate110
+		 */
+		this.iterate110 = function() {
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,
+				row=0,
+				col=0,
+				draw=0,
+				rsum,gsum,bsum,asum,
+				lp,rp,tp,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				tl, t, tr,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				rmatch1 = rgb_one.r + rgb_two.r * 2,
+				gmatch1 = rgb_one.g + rgb_two.g * 2,
+				bmatch1 = rgb_one.b + rgb_two.b * 2,
+				amatch1 = rgb_one.a + rgb_two.a * 2;
+				rmatch2 = rgb_one.r * 2 + rgb_two.r;
+				gmatch2 = rgb_one.g * 2 + rgb_two.g;
+				bmatch2 = rgb_one.b * 2 + rgb_two.b;
+				amatch2 = rgb_one.a * 2 + rgb_two.a;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				draw = 0;
+
+				tp = (row > 0) ? row-scale : last_row;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				tl = _self.getPixel(id, lp, tp, width);
+				tr = _self.getPixel(id, rp, tp, width);
+
+				rsum = t.r + tl.r + tr.r;
+				gsum = t.g + tl.g + tr.g;
+				bsum = t.b + tl.b + tr.b;
+				asum = t.a + tl.a + tr.a;
+
+				pixel = {r:rgb_two.r, g:rgb_two.g, b:rgb_two.b, a:rgb_two.a};
+				//pixel = _self.getPixel(id,col,row,width);
+
+				/*console.log(i + ') row:' + row/100 + ' col:' + col/100 +
+							' prev:' + pp/100 + ' next:' + np/100 +
+							' l:' + l.r + ' r:' + r.r +
+							' rsum:' + rsum);*/
+
+				if (rsum == rmatch2 || (rsum == rmatch1 && tl.r == rgb_two.r)) {
+					draw = 1;
+					pixel.r = rgb_one.r;
+				}
+
+				if (gsum == gmatch2 || (gsum == gmatch1 && tl.g == rgb_two.g)) {
+					draw = 1;
+					pixel.g = rgb_one.g;
+				}
+
+				if (bsum == bmatch2 || (bsum == bmatch1 && tl.b == rgb_two.b)) {
+					draw = 1;
+					pixel.b = rgb_one.b;
+				}
+
+				if (asum == amatch2 || (asum == amatch1 && tl.a == rgb_two.a)) {
+					draw = 1;
+					pixel.a = rgb_one.a;
+				}
+
+				if (draw) {
+					offset = col * 4 + row * 4 * width;
+					sizew = (col + scale <= width) ? scale : width - col;
+			     	_self.fillSquare(offset, sizew, scale, pixel);
+				}
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+		};
+
 		this.countInArray = function(arr, needle) {
 			var i=0, count=0;
 			for(i=0; i<arr.length; i++) {
@@ -385,7 +813,52 @@
 
 		this.drawFrame = function() {
 			_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
-			_self.iterate1();
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterate1();
+			}
+		};
+
+		this.drawLifeFrame = function() {
+			_self.animeID = window.requestAnimationFrame(_self.drawLifeFrame, canvas);
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterateLife();
+			}
+		};
+
+		this.draw30Frame = function() {
+			_self.animeID = window.requestAnimationFrame(_self.draw30Frame, canvas);
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterate30();
+			}
+		};
+
+		this.draw90Frame = function() {
+			_self.animeID = window.requestAnimationFrame(_self.draw90Frame, canvas);
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterate90();
+			}
+		};
+
+		this.draw110Frame = function() {
+			_self.animeID = window.requestAnimationFrame(_self.draw110Frame, canvas);
+			var now = Date.now(),
+				elapsed = now - _self.lastRender;
+			if (elapsed >= _self.rate) {
+				_self.lastRender = now - (elapsed % _self.rate);
+				_self.iterate110();
+			}
 		};
 
 		this.draw4AFrame = function() {
@@ -415,10 +888,18 @@
 
 		this.startLoop = function() {
 			_self.lastRender = Date.now();
-			if (_self.type == '4A' || _self.type == '4ARGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
-			} else {
+			if (_self.type == '1' || _self.type == '1RGBA') {
 				_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
+			} else if (_self.type == '4A' || _self.type == '4ARGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
+			} else if (_self.type == 'B3S23' || _self.type == 'B3S23RGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.drawLifeFrame, canvas);
+			} else if (_self.type == '30' || _self.type == '30RGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.draw30Frame, canvas);
+			} else if (_self.type == '90' || _self.type == '90RGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.draw90Frame, canvas);
+			} else if (_self.type == '110' || _self.type == '110RGBA') {
+				_self.animeID = window.requestAnimationFrame(_self.draw110Frame, canvas);
 			}
 			$(window).trigger('loopStarted');
 		};
@@ -473,10 +954,15 @@
 
 		this.setColors = function(c1,c2) {
 			//console.log('setColors', c1, c2);
+			if (_self.animeID) {
+				_self.stopLoop();
+				_self.implementColors(c1,c2);
+				_self.startLoop();
+			} else {
+				_self.implementColors(c1,c2);
+			}
 			_self.color_one = c1;
 			_self.color_two = c2;
-			_self.stopLoop();
-			_self.initLattice();
 		};
 
 		this.setFPS = function(fps) {
