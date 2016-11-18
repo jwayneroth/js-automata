@@ -13,7 +13,7 @@
 	 * init
 	 */
 	p.init = function(el) {
-		console.log('App::init');
+		//console.log('App::init');
 
 		///////////////////////////////////////////////////////
 		// properties
@@ -88,7 +88,7 @@
 		 */
 		this.docReady = function() {
 
-			console.log('App::docReady');
+			//console.log('App::docReady');
 
 			var canvas, c1, c2;
 
@@ -137,7 +137,7 @@
 		 * windowLoaded
 		 */
 		this.windowLoaded = function() {
-			console.log('App::windowLoaded');
+			//console.log('App::windowLoaded');
 		};
 
 

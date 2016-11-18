@@ -35,7 +35,7 @@
 	 */
 	p.init = function() {
 
-		console.log('TA::init');
+		//console.log('TA::init');
 
 		///////////////////////////////////////////////////////
 		// properties
