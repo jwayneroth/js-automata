@@ -49,6 +49,10 @@
 			ta.setSeeds(parseInt($('#seeds').val()));
 		};
 
+		/**
+		 * onColorChange
+		 * TODO: avoid duplicate rgba vals btw colors
+		 */
 		this.onColorChange = function(evt) {
 
 			//console.log('App::onColorChange ', evt.color.toRGB());
@@ -59,8 +63,23 @@
 			c1.a = Math.round(c1.a * 255);
 			c2.a = Math.round(c2.a * 255);
 
+			//console.log('App::onColorChange ', c1, c2);
+
+			c2.r = _self.checkDouble(c1.r, c2.r);
+			c2.g = _self.checkDouble(c1.g, c2.g);
+			c2.b = _self.checkDouble(c1.b, c2.b);
+			c2.a = _self.checkDouble(c1.a, c2.a);
+
 			ta.setColors(c1,c2);
 
+		};
+
+		this.checkDouble = function(p1,p2) {
+			if (p1 == p2) {
+				if (p2 < 255) return (p2 + 1);
+				return (p2 - 1);
+			}
+			return p2;
 		};
 
 		this.onBGColorChange = function(evt) {

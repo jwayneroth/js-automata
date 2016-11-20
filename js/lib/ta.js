@@ -67,11 +67,8 @@
 				_self.type == '110' || _self.type == '110RGBA'
 			) {
 				_self.solidLattice();
-				//ctx.clearRect(0, 0, width, height);
-				//imageData = ctx.getImageData(0, 0, width, height);
-				//_self.seedLattice(true);
 			} else if (_self.type == '4A' || _self.type == '4ARGBA') {
-				_self.type4Lattice();
+				_self.centeredLattice();
 			}
 
 		}
@@ -116,9 +113,9 @@
 		};
 
 		/**
-		 * type4Lattice
+		 * centeredLattice
 		 */
-		this.type4Lattice = function() {
+		this.centeredLattice = function() {
 
 			var i=0,
 				row=0,
@@ -240,6 +237,7 @@
 
 			     _self.fillSquare(offset, sizew, scale, seed_rgba);
 
+				//console.log('seed color: ' + seed_rgba.r + ', ' + seed_rgba.g + ', ' + seed_rgba.b + ', ' + seed_rgba.a);
 			}
 
 			ctx.putImageData(imageData, 0, 0);
@@ -923,8 +921,11 @@
 		this.restart = function() {
 			if (_self.animeID) {
 				_self.stopLoop();
+				_self.initLattice();
+				_self.startLoop();
+			} else {
+				_self.initLattice();
 			}
-			_self.initLattice();
 		};
 
 		this.toggleLoop = function() {
@@ -953,7 +954,9 @@
 		};
 
 		this.setColors = function(c1,c2) {
+
 			//console.log('setColors', c1, c2);
+
 			if (_self.animeID) {
 				_self.stopLoop();
 				_self.implementColors(c1,c2);
