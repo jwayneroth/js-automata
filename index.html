@@ -1,142 +1,150 @@
 <!doctype html>
 <html class="no-js" lang="">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Cellular Automata Playground</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <link rel="stylesheet" href="css/bootstrap-colorpicker.css">
-        <link rel="stylesheet" href="css/main.css">
-    </head>
-    <body>
+		<head>
+				<meta charset="utf-8">
+				<meta http-equiv="x-ua-compatible" content="ie=edge">
+				<title>Cellular Automata Playground</title>
+				<meta name="description" content="">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				<script src="js/vendor/modernizr-2.8.3.min.js"></script>
+				<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+				<link rel="stylesheet" href="css/bootstrap-colorpicker.css">
+				<link rel="stylesheet" href="css/main.css">
+		</head>
+		<body>
 
-        <div class="container-fluid">
-            <div class="row" style="margin-top: 1em;">
-                <div class="col-sm-8 col-sm-push-4">
-                    <canvas id="canvas" width="500" height="500"></canvas>
-                </div>
-                <div class="col-sm-4 col-sm-pull-8">
-                    <div class="form-group">
-                        <label for="type">type</label>
-                        <select class="form-control" id="tatype" name="tatype">
-                            <option value="1">TA1</option>
-                            <option value="1RGBA">TA1 RGBA</option>
-                            <option value="4A">TA4A</option>
-                            <option value="4ARGBA" selected="selected">TA4A RGBA</option>
-                            <option value="B3S23">B3/S23 (Life)</option>
-                            <option value="B3S23RGBA">B3/S23 RGBA (Life)</option>
-                            <option value="30">Rule 30</option>
-                            <option value="30RGBA">Rule 30RGBA</option>
-                            <option value="90">Rule 90</option>
-                            <option value="90RGBA">Rule 90RGBA</option>
-                            <option value="110">Rule 110</option>
-                            <option value="110RGBA">Rule 110RGBA</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="scale">scale</label>
-                        <select class="form-control" id="scale" name="scale">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4" selected="selected">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="seeds">seeds</label>
-                        <select class="form-control" id="seeds" name="seeds">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="50" selected="selected">50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                            <option value="300">300</option>
-                            <option value="500">500</option>
-                            <option value="800">800</option>
-                            <option value="3000">3000</option>
-                            <option value="10000">10000</option>
-                            <option value="50000">50000</option>
-                            <option value="100000">100000</option>
-                        </select>
-                    </div>
-                    <label for="cp1">Cell Color 1</label>
-                    <div id="cp1" class="input-group colorpicker-component">
-                        <input type="text" value="rgba(255,255,255,.6)" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                    </div>
-                    <label for="cp2">Cell Color 2</label>
-                    <div id="cp2" class="input-group colorpicker-component">
-                        <input type="text" value="rgba(0,0,0,.9)" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                    </div>
-                    <label for="cp3">BG Color</label>
-                    <div id="cp3" class="input-group colorpicker-component">
-                        <input type="text" value="rgb(45,45,45)" class="form-control" />
-                        <span class="input-group-addon"><i></i></span>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <div class="btn-group" role="group" aria-label="" style="margin-top: 1em;">
-                                <button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
-                                <button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
-                            </div>
-                        </div>
-                        <div class="col-xs-6">
-                            <div class="input-group" style="margin-top: 1em;">
-                                <select class="form-control" id="fps" name="fps">
-                                    <option value="4">4</option>
-                                    <option value="8">8</option>
-                                    <option value="12">12</option>
-                                    <option value="16">16</option>
-                                    <option value="20" selected="selected">20</option>
-                                    <option value="24">24</option>
-                                    <option value="28">28</option>
-                                    <option value="32">32</option>
-                                    <option value="36">36</option>
-                                </select>
-                                <div class="input-group-addon">fps</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--<div class="row">
-                <div class="col-xs-12">
-                <button id="dither" class="btn btn-default">dither</button>
-                </div>
-            </div>-->
-        </div>
+				<div class="container-fluid">
+						<div class="row" style="margin-top: 1em;">
+								<div class="col-sm-8 col-sm-push-4">
+										<canvas id="canvas" width="500" height="500"></canvas>
+								</div>
+								<div class="col-sm-4 col-sm-pull-8">
+										<div class="form-group">
+												<label for="type">type</label>
+												<select class="form-control" id="tatype" name="tatype">
+														<option value="1">TA1</option>
+														<option value="1RGBA">TA1 RGBA</option>
+														<option value="4A">TA4A</option>
+														<option value="4ARGBA" selected="selected">TA4A RGBA</option>
+														<option value="B3S23">B3/S23 (Life)</option>
+														<option value="B3S23RGBA">B3/S23 RGBA (Life)</option>
+														<option value="30">Rule 30</option>
+														<option value="30RGBA">Rule 30RGBA</option>
+														<option value="90">Rule 90</option>
+														<option value="90RGBA">Rule 90RGBA</option>
+														<option value="110">Rule 110</option>
+														<option value="110RGBA">Rule 110RGBA</option>
+												</select>
+												<div class="form-group" id="lattice-group" style="margin-top: 1em;">
+													<label for="lattice">lattice</label>
+													<select class="form-control" id="lattice" name="lattice">
+															<option value="centered" selected="selected">Centered</option>
+															<option value="rectangular">Rectangular</option>
+															<option value="mixed">Mixed</option>
+													</select>
+												</div>
+										</div>
+										<div class="form-group">
+												<label for="scale">scale</label>
+												<select class="form-control" id="scale" name="scale">
+														<option value="1">1</option>
+														<option value="2">2</option>
+														<option value="3">3</option>
+														<option value="4" selected="selected">4</option>
+														<option value="5">5</option>
+														<option value="6">6</option>
+														<option value="7">7</option>
+														<option value="8">8</option>
+														<option value="9">9</option>
+														<option value="10">10</option>
+														<option value="15">15</option>
+														<option value="20">20</option>
+														<option value="25">25</option>
+														<option value="50">50</option>
+														<option value="100">100</option>
+												</select>
+										</div>
+										<div class="form-group">
+												<label for="seeds">seeds</label>
+												<select class="form-control" id="seeds" name="seeds">
+														<option value="1">1</option>
+														<option value="2">2</option>
+														<option value="5" selected="selected">5</option>
+														<option value="10">10</option>
+														<option value="50">50</option>
+														<option value="100">100</option>
+														<option value="200">200</option>
+														<option value="300">300</option>
+														<option value="500">500</option>
+														<option value="800">800</option>
+														<option value="3000">3000</option>
+														<option value="10000">10000</option>
+														<option value="50000">50000</option>
+														<option value="100000">100000</option>
+												</select>
+										</div>
+										<label for="cp1">Cell Color 1</label>
+										<div id="cp1" class="input-group colorpicker-component">
+												<input type="text" value="rgba(255,255,255,.6)" class="form-control" />
+												<span class="input-group-addon"><i></i></span>
+										</div>
+										<label for="cp2">Cell Color 2</label>
+										<div id="cp2" class="input-group colorpicker-component">
+												<input type="text" value="rgba(0,0,0,.9)" class="form-control" />
+												<span class="input-group-addon"><i></i></span>
+										</div>
+										<label for="cp3">BG Color</label>
+										<div id="cp3" class="input-group colorpicker-component">
+												<input type="text" value="rgb(45,45,45)" class="form-control" />
+												<span class="input-group-addon"><i></i></span>
+										</div>
+										<div class="row">
+												<div class="col-xs-6">
+														<div class="btn-group" role="group" aria-label="" style="margin-top: 1em;">
+																<button id="restart" type="button" class="btn btn-default"><span class="glyphicon glyphicon-backward" aria-hidden="true"></span></button>
+																<button id="playpause" type="button" class="btn btn-default"><span class="glyphicon glyphicon-play" aria-hidden="true"></span></button>
+														</div>
+												</div>
+												<div class="col-xs-6">
+														<div class="input-group" style="margin-top: 1em;">
+																<select class="form-control" id="fps" name="fps">
+																		<option value="4">4</option>
+																		<option value="8">8</option>
+																		<option value="12">12</option>
+																		<option value="16">16</option>
+																		<option value="20" selected="selected">20</option>
+																		<option value="24">24</option>
+																		<option value="28">28</option>
+																		<option value="32">32</option>
+																		<option value="36">36</option>
+																</select>
+																<div class="input-group-addon">fps</div>
+														</div>
+												</div>
+										</div>
+								</div>
+						</div>
+						<!--<div class="row">
+								<div class="col-xs-12">
+								<button id="dither" class="btn btn-default">dither</button>
+								</div>
+						</div>-->
+				</div>
 
 
-        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="js/vendor/bootstrap-colorpicker.min.js"></script>
-        <script src="js/lib/ta.js"></script>
-        <script src="js/lib/app.js"></script>
-        <script>
-        (function($, scope) {
-            var app = new scope.App();
-            app.init();
-        }(jQuery, APP = APP || {}));
-        var APP;
-        </script>
+				<script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+				<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
+				<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+				<script src="js/vendor/bootstrap-colorpicker.min.js"></script>
+				<script src="js/lib/ta.js"></script>
+				<script src="js/lib/app.js"></script>
+				<script>
+				(function($, scope) {
+						var app = new scope.App();
+						app.init();
+				}(jQuery, APP = APP || {}));
+				var APP;
+				</script>
 
-    </body>
+		</body>
 </html>

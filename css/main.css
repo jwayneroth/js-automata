@@ -15,3 +15,6 @@ body {
 .colorpicker-component input {
 	font-size: .8em;
 }
+.hidden {
+	display: none !default;
+}

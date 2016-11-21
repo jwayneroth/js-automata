@@ -6,6 +6,7 @@
 
 		var defaults = {
 			type: '4ARGBA',
+			lattice: 'centered',
 			scale: 10,
 			seeds: .1,
 			fps: 18,
@@ -43,49 +44,47 @@
 
 		var _self = this,
 			canvas = this.canvas,
-		    ctx = canvas.getContext('2d'),
-		    width = canvas.width,
-		    height = canvas.height,
-		    imageData = ctx.getImageData(0, 0, width, height),
-		    animeID = this.animeId;
+				ctx = canvas.getContext('2d'),
+				width = canvas.width,
+				height = canvas.height,
+				imageData = ctx.getImageData(0, 0, width, height),
+				animeID = this.animeId;
 
 		///////////////////////////////////////////////////////
 		// private methods
 		///////////////////////////////////////////////////////
 
 		this.initLattice = function() {
-
-			//console.log('TA::initLattice');
-
-			if (_self.type == '1' || _self.type == '1RGBA' ||
-				_self.type == 'B3S23' || _self.type == 'B3S23RGBA' ||
-				_self.type == '30' || _self.type == '30RGBA' ||
-				_self.type == '90' || _self.type == '90RGBA' ||
-				_self.type == '110' || _self.type == '110RGBA'
-			) {
+		
+			if (_self.type == '4A' || _self.type == '4ARGBA') {
+				if (_self.lattice == 'centered') {
+					_self.centeredLattice();
+				} else if (_self.lattice == 'rectangular') {
+					_self.rectangularLattice();
+				} else if (_self.lattice == 'mixed') {
+					_self.mixedLattice();
+				}
+			} else {
 				_self.solidLattice();
-			} else if (_self.type == '4A' || _self.type == '4ARGBA') {
-				_self.centeredLattice();
 			}
-
 		}
 
 		this.solidLattice = function() {
-
+		
 			var i=0,
 				row=0,
 				col=0,
 				scale = _self.scale,
 				rgb_two = _self.color_two,
-		    	offset,
-		    	sizew;
+					offset,
+					sizew;
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
 
-			    offset = col * 4 + row * 4 * width;
+					offset = col * 4 + row * 4 * width;
 
 				sizew = (col + scale <= width) ? scale : width - col;
 
-			     _self.fillSquare(offset, sizew, scale, rgb_two);
+					 _self.fillSquare(offset, sizew, scale, rgb_two);
 
 				if(col > width - 1 - scale) {
 					col = 0;
@@ -98,11 +97,7 @@
 
 			ctx.putImageData(imageData, 0, 0);
 
-			_self.seedLattice((_self.type == '1RGBA' ||
-			                   _self.type == 'B3S23RGBA' ||
-			                   _self.type == '30RGBA' ||
-			                   _self.type == '90RGBA' ||
-			                   _self.type == '110RGBA'));
+			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
 
 		};
 
@@ -113,29 +108,29 @@
 				col=0,
 				scale = _self.scale,
 				rgb_one = _self.color_one,
-		    	rgb_two = _self.color_two,
-		    	square_rgb,
-		    	offset,
-		    	sizew,
-		    	square_rgb;
+				rgb_two = _self.color_two,
+				square_rgb,
+				offset,
+				sizew,
+				square_rgb;
 
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
 
-			    if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
-			    	((row / scale % 2 != 0) && (col / scale % 2 != 0))
-			    ) {
-			        square_rgb = rgb_one;
-			    } else {
-			      	square_rgb = rgb_two;
-			    }
+					if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
+						((row / scale % 2 != 0) && (col / scale % 2 != 0))
+					) {
+							square_rgb = rgb_one;
+					} else {
+							square_rgb = rgb_two;
+					}
 
-			    offset = col * 4 + row * 4 * width;
+					offset = col * 4 + row * 4 * width;
 
-			    //console.log('i: ' + i + '\t\t row: ' + row + '\t\t col: ' + col + '\t\t offset: ' + offset);
+					//console.log('i: ' + i + '\t\t row: ' + row + '\t\t col: ' + col + '\t\t offset: ' + offset);
 
 				sizew = (col + scale <= width) ? scale : width - col;
 
-			     _self.fillSquare(offset, sizew, scale, square_rgb);
+					 _self.fillSquare(offset, sizew, scale, square_rgb);
 
 				if(col > width - 1 - scale) {
 					col = 0;
@@ -148,7 +143,103 @@
 
 			ctx.putImageData(imageData, 0, 0);
 
-			_self.seedLattice((_self.type == '4ARGBA'));
+			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
+
+		};
+		
+		this.rectangularLattice = function() {
+
+			var i=0,
+				row=0,
+				col=0,
+				scale = _self.scale,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				square_rgb,
+				offset,
+				sizew,
+				square_rgb;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				if (col / scale % 2 == 0) {
+						square_rgb = rgb_one;
+				} else {
+						square_rgb = rgb_two;
+				}
+
+				offset = col * 4 + row * 4 * width;
+
+				sizew = (col + scale <= width) ? scale : width - col;
+
+				_self.fillSquare(offset, sizew, scale, square_rgb);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+
+			ctx.putImageData(imageData, 0, 0);
+
+			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
+
+		};
+		
+		this.mixedLattice = function() {
+
+			var i=0,
+				row=0,
+				col=0,
+				scale = _self.scale,
+				rgb_one = _self.color_one,
+				rgb_two = _self.color_two,
+				square_rgb,
+				offset,
+				sizew,
+				square_rgb,
+				lattice = Math.round(Math.random());
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+				
+				if (lattice) {
+					if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
+						((row / scale % 2 != 0) && (col / scale % 2 != 0))
+					) {
+							square_rgb = rgb_one;
+					} else {
+							square_rgb = rgb_two;
+					}
+				} else {
+					if (col / scale % 2 == 0) {
+							square_rgb = rgb_one;
+					} else {
+							square_rgb = rgb_two;
+					}
+				}
+				
+				offset = col * 4 + row * 4 * width;
+
+				sizew = (col + scale <= width) ? scale : width - col;
+
+				_self.fillSquare(offset, sizew, scale, square_rgb);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+					if (row % 15 == 0) lattice = Math.round(Math.random());
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+
+			ctx.putImageData(imageData, 0, 0);
+
+			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
 
 		};
 
@@ -160,12 +251,12 @@
 				col=0,
 				scale = _self.scale,
 				rgb_one = _self.color_one,
-		    	offset,
-		    	sizew;
+					offset,
+					sizew;
 
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
 
-			    offset = col * 4 + row * 4 * width;
+					offset = col * 4 + row * 4 * width;
 
 				sizew = (col + scale <= width) ? scale : width - col;
 
@@ -176,7 +267,7 @@
 				pixel.b = (pixel.b == rgb_one.b) ? c1.b : c2.b;
 				pixel.a = (pixel.a == rgb_one.a) ? c1.a : c2.a;
 
-			     _self.fillSquare(offset, sizew, scale, pixel);
+					 _self.fillSquare(offset, sizew, scale, pixel);
 
 				if(col > width - 1 - scale) {
 					col = 0;
@@ -199,28 +290,28 @@
 				seed_cnt =  _self.seeds,
 				seed_r,seed_c,seed_rgba,
 				rgb_one = _self.color_one,
-		    	rgb_two = _self.color_two,
-		    	offset;
+					rgb_two = _self.color_two,
+					offset;
 
-		    //console.log('TA::seedLattice \t seeds: ' + _self.seeds);
+				//console.log('TA::seedLattice \t seeds: ' + _self.seeds);
 
 			for (i=0; i<seed_cnt; i++) {
 
-			    seed_r = scale * Math.floor(Math.random() * (height/scale));
-			    seed_c = scale * Math.floor(Math.random() * (width/scale));
-			    seed_rgba = {r:rgb_one.r,g:rgb_one.g,b:rgb_one.b,a:rgb_one.a};
+					seed_r = scale * Math.floor(Math.random() * (height/scale));
+					seed_c = scale * Math.floor(Math.random() * (width/scale));
+					seed_rgba = {r:rgb_one.r,g:rgb_one.g,b:rgb_one.b,a:rgb_one.a};
 
-			    if (rgba) {
-				    if (Math.round(Math.random())) seed_rgba.r = rgb_two.r;
-				    if (Math.round(Math.random())) seed_rgba.g = rgb_two.g;
-				    if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
-				    if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
+					if (rgba) {
+						if (Math.round(Math.random())) seed_rgba.r = rgb_two.r;
+						if (Math.round(Math.random())) seed_rgba.g = rgb_two.g;
+						if (Math.round(Math.random())) seed_rgba.b = rgb_two.b;
+						if (Math.round(Math.random())) seed_rgba.a = rgb_two.a;
 				}
-			    offset = seed_c * 4 + seed_r * 4 * width;
+					offset = seed_c * 4 + seed_r * 4 * width;
 
 				sizew = (seed_c + scale <= width) ? scale : width - seed_c;
 
-			     _self.fillSquare(offset, sizew, scale, seed_rgba);
+					 _self.fillSquare(offset, sizew, scale, seed_rgba);
 
 				//console.log('seed color: ' + seed_rgba.r + ', ' + seed_rgba.g + ', ' + seed_rgba.b + ', ' + seed_rgba.a);
 			}
@@ -288,7 +379,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -314,7 +405,7 @@
 				tp,bp,lp,rp,
 				l,t,r,b,br,tl,
 				rgb_one = _self.color_one,
-		    	rgb_two = _self.color_two,
+					rgb_two = _self.color_two,
 				rmatch = rgb_one.r * 3 + rgb_two.r * 3,
 				gmatch = rgb_one.g * 3 + rgb_two.g * 3,
 				bmatch = rgb_one.b * 3 + rgb_two.b * 3,
@@ -364,7 +455,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -468,7 +559,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -552,7 +643,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -630,7 +721,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -708,7 +799,7 @@
 				if (draw) {
 					offset = col * 4 + row * 4 * width;
 					sizew = (col + scale <= width) ? scale : width - col;
-			     	_self.fillSquare(offset, sizew, scale, pixel);
+						_self.fillSquare(offset, sizew, scale, pixel);
 				}
 
 				if(col > width - 1 - scale) {
@@ -733,35 +824,54 @@
 				rsum,gsum,bsum,asum,
 				last_col = (Math.ceil(width/scale) * scale - scale),
 				last_row = (Math.ceil(height/scale) * scale - scale),
-				tp,bp,lp,rp,
-				l,t,r,b,
+				bp,lp,rp,
+				r,b,bl,br,
 				pixel,pixel_new,
-				diffr, diffg, diffb, diffa;
-
+				dither;
+				
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
 
-				tp = (row > 0) ? row-scale : last_row;
 				bp = (row < last_row) ? row+scale : 0;
 				lp = (col > 0) ? col-scale : last_col;
 				rp = (col < last_col) ? col+scale : 0;
 
-				t = _self.getPixel(id, col, tp, width);
-				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, lp, row, width);
 				r = _self.getPixel(id, rp, row, width);
-
+				bl = _self.getPixel(id, lp, bp, width);
+				b = _self.getPixel(id, col, bp, width);
+				br = _self.getPixel(id, rp, bp, width);
+				
 				pixel = _self.getPixel(id,col,row,width);
-				pixel_new = _self.getDithered(pixel);
-
-				diffr = pixel_new.r - pixel.r;
-				diffg = pixel_new.g - pixel.g;
-				diffb = pixel_new.b - pixel.b;
-				diffa = pixel_new.a - pixel.a;
-
+				dither = _self.getDithered(pixel);
+				
+				console.log('dither', pixel, dither[0]);//, dither[1]);
+				
+				pixel_new = dither[0];
+				
+				r = _self.distributeDither(r,dither[1],7/16);
+				bl = _self.distributeDither(bl,dither[1],3/16);
+				b = _self.distributeDither(b,dither[1],5/16);
+				br = _self.distributeDither(br,dither[1],1/16);
+				
 				offset = col * 4 + row * 4 * width;
 				sizew = (col + scale <= width) ? scale : width - col;
-			    _self.fillSquare(offset, sizew, scale, pixel_new);
-
+				_self.fillSquare(offset, sizew, scale, pixel_new);
+				
+				offset = rp * 4 + row * 4 * width;
+				sizew = (rp + scale <= width) ? scale : width - rp;
+				_self.fillSquare(offset, sizew, scale, r);
+				
+				offset = lp * 4 + bp * 4 * width;
+				sizew = (lp + scale <= width) ? scale : width - lp;
+				_self.fillSquare(offset, sizew, scale, bl);
+				
+				offset = col * 4 + bp * 4 * width;
+				sizew = (col + scale <= width) ? scale : width - col;
+				_self.fillSquare(offset, sizew, scale, b);
+				
+				offset = rp * 4 + bp * 4 * width;
+				sizew = (rp + scale <= width) ? scale : width - rp;
+				_self.fillSquare(offset, sizew, scale, br);
+				
 				if(col > width - 1 - scale) {
 					col = 0;
 					row += scale;
@@ -770,19 +880,34 @@
 				}
 				i++;
 			}
+			_self.color_one = _self.getDithered(_self.color_one);
+			_self.color_two = _self.getDithered(_self.color_two);
 			ctx.putImageData(imageData, 0, 0);
 
 		};
 
 		this.getDithered = function(p) {
-			return {
-				r:Math.floor(p.r/255 * 127),
-				g:Math.floor(p.g/255 * 127),
-				b:Math.floor(p.b/255 * 127),
-				a:Math.floor(p.a/255 * 127)
-			};
+			var div = 10,
+				palette = Array.apply(null, Array(div)).map(function (_, i) {return Math.round(((i+1)/div) * 255);}),
+				r = palette[Math.floor((p.r/255) * (div-1))],
+				g = palette[Math.floor((p.g/255) * (div-1))],
+				b = palette[Math.floor((p.b/255) * (div-1))],
+				a = palette[Math.floor((p.a/255) * (div-1))];
+			return [
+				{r:r,g:g,b:b,a:a},
+				{r:p.r-r,g:p.g-g,b:p.b-b,a:p.a-a}
+			];
 		};
-
+		
+		this.distributeDither = function(p,dither,mult) {
+			return {
+				r: p.r + dither.r * mult,
+				g: p.g + dither.g * mult,
+				b: p.b + dither.b * mult,
+				a: p.a + dither.a * mult
+			}
+		}
+		
 		this.countInArray = function(arr, needle) {
 			var i=0, count=0;
 			for(i=0; i<arr.length; i++) {
@@ -816,14 +941,14 @@
 		this.fillSquare = function(orig,sizew,sizeh,rgba) {
 			var i,j,offset;
 			for(i=0; i<sizeh; i++) {
-		    	for(j=0; j<sizew; j++) {
-		    		offset = orig + width * 4 * i + 4 * j;
-		    		imageData.data[offset + 0] = rgba.r;
-	        		imageData.data[offset + 1] = rgba.g;
-	        		imageData.data[offset + 2] = rgba.b;
-	        		imageData.data[offset + 3] = rgba.a;
-	        	}
-	        }
+					for(j=0; j<sizew; j++) {
+						offset = orig + width * 4 * i + 4 * j;
+						imageData.data[offset + 0] = rgba.r;
+							imageData.data[offset + 1] = rgba.g;
+							imageData.data[offset + 2] = rgba.b;
+							imageData.data[offset + 3] = rgba.a;
+						}
+					}
 
 		}
 
@@ -863,8 +988,8 @@
 
 		this.stopLoop = function() {
 			window.cancelAnimationFrame(_self.animeID);
-        	_self.animeID = null;
-        	$(window).trigger('loopStopped');
+					_self.animeID = null;
+					$(window).trigger('loopStopped');
 		};
 
 		///////////////////////////////////////////////////////
@@ -931,7 +1056,13 @@
 			_self.fps = fps;
 			_self.rate = 1000/fps;
 		}
-
+		
+		this.setLattice = function(lattice) {
+			_self.stopLoop();
+			_self.lattice = lattice;
+			_self.initLattice();
+		}
+		
 		///////////////////////////////////////////////////////
 		// main
 		///////////////////////////////////////////////////////

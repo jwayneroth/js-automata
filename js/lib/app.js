@@ -28,7 +28,13 @@
 		///////////////////////////////////////////////////////
 
 		this.onTypeChange = function() {
-			ta.setTAType($('#tatype').val());
+			var val = $('#tatype').val();
+			ta.setTAType(val);
+			if (val == '4A' || val == '4ARGBA') {
+				$('#lattice-group').show();
+			} else {
+				$('#lattice-group').hide();
+			}
 		};
 
 		this.onPlayPauseClick = function() {
@@ -116,7 +122,10 @@
 			$(window).on('loopStopped', _self.onLoopStop);
 
 			$('#tatype').on('change', _self.onTypeChange);
-
+			$('#lattice').on('change', function() {
+				ta.setLattice($('#lattice').val());
+			});
+			
 			$("#cp1,#cp2").colorpicker({});
 			$("#cp3").colorpicker({format:'rgb'});
 
