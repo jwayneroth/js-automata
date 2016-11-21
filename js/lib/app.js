@@ -130,6 +130,10 @@
 
 			$('#fps').on('change', _self.onFPSChange);
 
+			$('#dither').on('click', function() {
+				ta.dither();
+			});
+
 			canvas = document.getElementById('canvas');
 			canvas.style.backgroundColor = $('#cp3').data('colorpicker').color.toHex();
 

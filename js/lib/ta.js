@@ -53,9 +53,6 @@
 		// private methods
 		///////////////////////////////////////////////////////
 
-		/**
-		 * initLattice
-		 */
 		this.initLattice = function() {
 
 			//console.log('TA::initLattice');
@@ -73,9 +70,6 @@
 
 		}
 
-		/**
-		 * solidLattice
-		 */
 		this.solidLattice = function() {
 
 			var i=0,
@@ -112,9 +106,6 @@
 
 		};
 
-		/**
-		 * centeredLattice
-		 */
 		this.centeredLattice = function() {
 
 			var i=0,
@@ -161,9 +152,6 @@
 
 		};
 
-		/**
-		 * implementColors
-		 */
 		this.implementColors = function(c1,c2) {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
@@ -203,9 +191,6 @@
 
 		};
 
-		/**
-		 * seedLattice
-		 */
 		this.seedLattice = function(rgba) {
 
 			var i=0,
@@ -244,20 +229,14 @@
 
 		};
 
-		/**
-		 * iterate1
-		 */
 		this.iterate1 = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
-				tp,bp,pp,np,
+				tp,bp,lp,rp,
 				last_col = (Math.ceil(width/scale) * scale - scale),
 				last_row = (Math.ceil(height/scale) * scale - scale),
 				l, t, r, b,
@@ -274,13 +253,13 @@
 
 				tp = (row > 0) ? row-scale : last_row;
 				bp = (row < last_row) ? row+scale : 0;
-				pp = (col > 0) ? col-scale : last_col;
-				np = (col < last_col) ? col+scale : 0;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, pp, row, width);
-				r = _self.getPixel(id, np, row, width);
+				l = _self.getPixel(id, lp, row, width);
+				r = _self.getPixel(id, rp, row, width);
 
 				rsum = t.r + b.r + l.r + r.r;
 				gsum = t.g + b.g + l.g + r.g;
@@ -323,23 +302,17 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-		/**
-		 * iterate4A
-		 */
 		this.iterate4A = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
 				last_col = (Math.ceil(width/scale) * scale - scale),
 				last_row = (Math.ceil(height/scale) * scale - scale),
-				tp,bp,pp,np,
-				l, t, r, b, drb, dlt,
+				tp,bp,lp,rp,
+				l,t,r,b,br,tl,
 				rgb_one = _self.color_one,
 		    	rgb_two = _self.color_two,
 				rmatch = rgb_one.r * 3 + rgb_two.r * 3,
@@ -354,20 +327,20 @@
 
 				tp = (row > 0) ? row-scale : last_row;
 				bp = (row < last_row) ? row+scale : 0;
-				pp = (col > 0) ? col-scale : last_col;
-				np = (col < last_col) ? col+scale : 0;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, pp, row, width);
-				r = _self.getPixel(id, np, row, width);
-				drb = _self.getPixel(id, np, bp, width);
-				dlt = _self.getPixel(id, pp, tp, width);
+				l = _self.getPixel(id, lp, row, width);
+				r = _self.getPixel(id, rp, row, width);
+				br = _self.getPixel(id, rp, bp, width);
+				tl = _self.getPixel(id, lp, tp, width);
 
-				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r;
-				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g;
-				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b;
-				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a;
+				rsum = t.r + b.r + l.r + r.r +br.r + tl.r;
+				gsum = t.g + b.g + l.g + r.g + br.g + tl.g;
+				bsum = t.b + b.b + l.b + r.b + br.b + tl.b;
+				asum = t.a + b.a + l.a + r.a + br.a + tl.a;
 
 				pixel = _self.getPixel(id,col,row,width);
 
@@ -405,23 +378,17 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-		/**
-		 * iterateLife
-		 */
 		this.iterateLife = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
-				tp,bp,pp,np,
+				tp,bp,lp,rp,
 				last_col = (Math.ceil(width/scale) * scale - scale),
 				last_row = (Math.ceil(height/scale) * scale - scale),
-				l, t, r, b, drb, dlt, dlb, drt,
+				l,t,r,b,br,tl,bl,tr,
 				rgb_one = _self.color_one,
 				rgb_two = _self.color_two,
 				rmatch2 = rgb_one.r * 2 + rgb_two.r * 6,
@@ -439,22 +406,22 @@
 
 				tp = (row > 0) ? row-scale : last_row;
 				bp = (row < last_row) ? row+scale : 0;
-				pp = (col > 0) ? col-scale : last_col;
-				np = (col < last_col) ? col+scale : 0;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
 
 				t = _self.getPixel(id, col, tp, width);
 				b = _self.getPixel(id, col, bp, width);
-				l = _self.getPixel(id, pp, row, width);
-				r = _self.getPixel(id, np, row, width);
-				drb = _self.getPixel(id, np, bp, width);
-				dlt = _self.getPixel(id, pp, tp, width);
-				dlb = _self.getPixel(id, pp, bp, width);
-				drt = _self.getPixel(id, np, tp, width);
+				l = _self.getPixel(id, lp, row, width);
+				r = _self.getPixel(id, rp, row, width);
+				br = _self.getPixel(id, rp, bp, width);
+				tl = _self.getPixel(id, lp, tp, width);
+				bl = _self.getPixel(id, lp, bp, width);
+				tr = _self.getPixel(id, rp, tp, width);
 
-				rsum = t.r + b.r + l.r + r.r + drb.r + dlt.r + dlb.r + drt.r;
-				gsum = t.g + b.g + l.g + r.g + drb.g + dlt.g + dlb.g + drt.g;
-				bsum = t.b + b.b + l.b + r.b + drb.b + dlt.b + dlb.b + drt.b;
-				asum = t.a + b.a + l.a + r.a + drb.a + dlt.a + dlb.a + drt.a;
+				rsum = t.r + b.r + l.r + r.r + br.r + tl.r + bl.r + tr.r;
+				gsum = t.g + b.g + l.g + r.g + br.g + tl.g + bl.g + tr.g;
+				bsum = t.b + b.b + l.b + r.b + br.b + tl.b + bl.b + tr.b;
+				asum = t.a + b.a + l.a + r.a + br.a + tl.a + bl.a + tr.a;
 
 				pixel = _self.getPixel(id,col,row,width);
 
@@ -515,18 +482,12 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-		/**
-		 * iterate30
-		 */
 		this.iterate30 = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
 				lp,rp,tp,
 				last_col = (Math.ceil(width/scale) * scale - scale),
@@ -605,18 +566,12 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-		/**
-		 * iterate90
-		 */
 		this.iterate90 = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
 				lp,rp,tp,
 				last_col = (Math.ceil(width/scale) * scale - scale),
@@ -689,18 +644,12 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-		/**
-		 * iterate110
-		 */
 		this.iterate110 = function() {
 
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
-				i=0,
-				row=0,
-				col=0,
-				draw=0,
+				i=0,row=0,col=0,draw=0,
 				rsum,gsum,bsum,asum,
 				lp,rp,tp,
 				last_col = (Math.ceil(width/scale) * scale - scale),
@@ -735,12 +684,6 @@
 				asum = t.a + tl.a + tr.a;
 
 				pixel = {r:rgb_two.r, g:rgb_two.g, b:rgb_two.b, a:rgb_two.a};
-				//pixel = _self.getPixel(id,col,row,width);
-
-				/*console.log(i + ') row:' + row/100 + ' col:' + col/100 +
-							' prev:' + pp/100 + ' next:' + np/100 +
-							' l:' + l.r + ' r:' + r.r +
-							' rsum:' + rsum);*/
 
 				if (rsum == rmatch2 || (rsum == rmatch1 && tl.r == rgb_two.r)) {
 					draw = 1;
@@ -779,6 +722,67 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
+		this.dither = function() {
+
+			console.log('TA::dither');
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,row=0,col=0,
+				rsum,gsum,bsum,asum,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				tp,bp,lp,rp,
+				l,t,r,b,
+				pixel,pixel_new,
+				diffr, diffg, diffb, diffa;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				tp = (row > 0) ? row-scale : last_row;
+				bp = (row < last_row) ? row+scale : 0;
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
+
+				t = _self.getPixel(id, col, tp, width);
+				b = _self.getPixel(id, col, bp, width);
+				l = _self.getPixel(id, lp, row, width);
+				r = _self.getPixel(id, rp, row, width);
+
+				pixel = _self.getPixel(id,col,row,width);
+				pixel_new = _self.getDithered(pixel);
+
+				diffr = pixel_new.r - pixel.r;
+				diffg = pixel_new.g - pixel.g;
+				diffb = pixel_new.b - pixel.b;
+				diffa = pixel_new.a - pixel.a;
+
+				offset = col * 4 + row * 4 * width;
+				sizew = (col + scale <= width) ? scale : width - col;
+			    _self.fillSquare(offset, sizew, scale, pixel_new);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+
+		};
+
+		this.getDithered = function(p) {
+			return {
+				r:Math.floor(p.r/255 * 127),
+				g:Math.floor(p.g/255 * 127),
+				b:Math.floor(p.b/255 * 127),
+				a:Math.floor(p.a/255 * 127)
+			};
+		};
+
 		this.countInArray = function(arr, needle) {
 			var i=0, count=0;
 			for(i=0; i<arr.length; i++) {
@@ -809,68 +813,7 @@
 			return {r:r, g:g, b:b, a:a};
 		}
 
-		this.drawFrame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterate1();
-			}
-		};
-
-		this.drawLifeFrame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.drawLifeFrame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterateLife();
-			}
-		};
-
-		this.draw30Frame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.draw30Frame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterate30();
-			}
-		};
-
-		this.draw90Frame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.draw90Frame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterate90();
-			}
-		};
-
-		this.draw110Frame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.draw110Frame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterate110();
-			}
-		};
-
-		this.draw4AFrame = function() {
-			_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
-			var now = Date.now(),
-				elapsed = now - _self.lastRender;
-			if (elapsed >= _self.rate) {
-				_self.lastRender = now - (elapsed % _self.rate);
-				_self.iterate4A();
-			}
-		};
-
-		this.fillSquare = function(orig,sizew,sizeh,rgba) { //id,orig,rgba,size,width) {
-			//console.log('fillSquare sizew: ' + sizew);
+		this.fillSquare = function(orig,sizew,sizeh,rgba) {
 			var i,j,offset;
 			for(i=0; i<sizeh; i++) {
 		    	for(j=0; j<sizew; j++) {
@@ -885,20 +828,36 @@
 		}
 
 		this.startLoop = function() {
-			_self.lastRender = Date.now();
+
+			var iteration,
+				lastRender = Date.now();
+
 			if (_self.type == '1' || _self.type == '1RGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.drawFrame, canvas);
+				iteration = _self.iterate1;
 			} else if (_self.type == '4A' || _self.type == '4ARGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.draw4AFrame, canvas);
+				iteration = _self.iterate4A;
 			} else if (_self.type == 'B3S23' || _self.type == 'B3S23RGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.drawLifeFrame, canvas);
+				iteration = _self.iterateLife;
 			} else if (_self.type == '30' || _self.type == '30RGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.draw30Frame, canvas);
+				iteration = _self.iterate30;
 			} else if (_self.type == '90' || _self.type == '90RGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.draw90Frame, canvas);
+				iteration = _self.iterate90;
 			} else if (_self.type == '110' || _self.type == '110RGBA') {
-				_self.animeID = window.requestAnimationFrame(_self.draw110Frame, canvas);
+				iteration = _self.iterate110;
 			}
+
+			function drawFrame() {
+				_self.animeID = window.requestAnimationFrame(drawFrame, canvas);
+				var now = Date.now(),
+					elapsed = now - lastRender;
+				if (elapsed >= _self.rate) {
+					lastRender = now - (elapsed % _self.rate);
+					iteration();
+				}
+			};
+
+			_self.animeID = window.requestAnimationFrame(drawFrame, canvas);
+
 			$(window).trigger('loopStarted');
 		};
 
