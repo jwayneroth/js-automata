@@ -125,7 +125,7 @@
 			$('#lattice').on('change', function() {
 				ta.setLattice($('#lattice').val());
 			});
-			
+
 			$("#cp1,#cp2").colorpicker({});
 			$("#cp3").colorpicker({format:'rgb'});
 
@@ -141,6 +141,10 @@
 
 			$('#dither').on('click', function() {
 				ta.dither();
+			});
+
+			$('#aa').on('click', function() {
+				ta.antialias();
 			});
 
 			canvas = document.getElementById('canvas');

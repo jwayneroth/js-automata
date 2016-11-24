@@ -55,7 +55,7 @@
 		///////////////////////////////////////////////////////
 
 		this.initLattice = function() {
-		
+
 			if (_self.type == '4A' || _self.type == '4ARGBA') {
 				if (_self.lattice == 'centered') {
 					_self.centeredLattice();
@@ -70,7 +70,7 @@
 		}
 
 		this.solidLattice = function() {
-		
+
 			var i=0,
 				row=0,
 				col=0,
@@ -146,7 +146,7 @@
 			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
 
 		};
-		
+
 		this.rectangularLattice = function() {
 
 			var i=0,
@@ -188,7 +188,7 @@
 			_self.seedLattice((_self.type.indexOf('RGBA') !== -1));
 
 		};
-		
+
 		this.mixedLattice = function() {
 
 			var i=0,
@@ -204,7 +204,7 @@
 				lattice = Math.round(Math.random());
 
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
-				
+
 				if (lattice) {
 					if (((row / scale % 2 == 0) && (col / scale % 2 == 0)) ||
 						((row / scale % 2 != 0) && (col / scale % 2 != 0))
@@ -220,7 +220,7 @@
 							square_rgb = rgb_two;
 					}
 				}
-				
+
 				offset = col * 4 + row * 4 * width;
 
 				sizew = (col + scale <= width) ? scale : width - col;
@@ -828,7 +828,7 @@
 				r,b,bl,br,
 				pixel,pixel_new,
 				dither;
-				
+
 			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
 
 				bp = (row < last_row) ? row+scale : 0;
@@ -839,39 +839,39 @@
 				bl = _self.getPixel(id, lp, bp, width);
 				b = _self.getPixel(id, col, bp, width);
 				br = _self.getPixel(id, rp, bp, width);
-				
+
 				pixel = _self.getPixel(id,col,row,width);
 				dither = _self.getDithered(pixel);
-				
+
 				console.log('dither', pixel, dither[0]);//, dither[1]);
-				
+
 				pixel_new = dither[0];
-				
+
 				r = _self.distributeDither(r,dither[1],7/16);
 				bl = _self.distributeDither(bl,dither[1],3/16);
 				b = _self.distributeDither(b,dither[1],5/16);
 				br = _self.distributeDither(br,dither[1],1/16);
-				
+
 				offset = col * 4 + row * 4 * width;
 				sizew = (col + scale <= width) ? scale : width - col;
 				_self.fillSquare(offset, sizew, scale, pixel_new);
-				
+
 				offset = rp * 4 + row * 4 * width;
 				sizew = (rp + scale <= width) ? scale : width - rp;
 				_self.fillSquare(offset, sizew, scale, r);
-				
+
 				offset = lp * 4 + bp * 4 * width;
 				sizew = (lp + scale <= width) ? scale : width - lp;
 				_self.fillSquare(offset, sizew, scale, bl);
-				
+
 				offset = col * 4 + bp * 4 * width;
 				sizew = (col + scale <= width) ? scale : width - col;
 				_self.fillSquare(offset, sizew, scale, b);
-				
+
 				offset = rp * 4 + bp * 4 * width;
 				sizew = (rp + scale <= width) ? scale : width - rp;
 				_self.fillSquare(offset, sizew, scale, br);
-				
+
 				if(col > width - 1 - scale) {
 					col = 0;
 					row += scale;
@@ -886,6 +886,118 @@
 
 		};
 
+		this.antialias = function() {
+
+			console.log('TA::antialias');
+
+			var id = {data:imageData.data.slice(), width: width, height: height},
+				scale = _self.scale,
+				sizew,
+				i=0,row=0,col=0,
+				rsum,gsum,bsum,asum,
+				last_col = (Math.ceil(width/scale) * scale - scale),
+				last_row = (Math.ceil(height/scale) * scale - scale),
+				lp,rp,tp,bp,
+				l,r,t,b,
+				sqr = Math.ceil(scale/3),
+				avgtl,avgt,avgtr,avgl,avgr,avgbl,avgbr,
+				pixel,pixel_new,
+				dither;
+
+			if (scale < 3) return;
+
+			while( i < Math.ceil(width/scale) * Math.ceil(height/scale)) {
+
+				lp = (col > 0) ? col-scale : last_col;
+				rp = (col < last_col) ? col+scale : 0;
+				tp = (row > 0) ? row-scale : last_row;
+				bp = (row < last_row) ? row+scale : 0;
+
+				l = _self.getPixel(id, lp, row, width);
+				r = _self.getPixel(id, rp, row, width);
+				t = _self.getPixel(id, col, tp, width);
+				b = _self.getPixel(id, col, bp, width);
+
+				pixel = _self.getPixel(id,col+sqr,row+sqr,width);
+
+				// top left
+				avgtl = _self.getAverage([l,t,pixel]);
+				offset = col * 4 + row * 4 * width;
+				sizew = (col + sqr <= width) ? sqr : width - (col + sqr);
+				_self.fillSquare(offset, sizew, sqr, avgtl);
+
+				// top
+				avgt = _self.getAverage([t,pixel]);
+				offset = (col+sqr) * 4 + row * 4 * width;
+				sizew = ((col+scale-sqr-sqr) <= width) ? (scale-sqr-sqr) : width - (col+scale-sqr-sqr);
+				_self.fillSquare(offset, sizew, sqr, avgt);
+
+				// top right
+				avgtr = _self.getAverage([r,t,pixel]);
+				offset = (col+scale-sqr) * 4 + row * 4 * width;
+				sizew = (col + scale <= width) ? sqr : width - (col + scale);
+				_self.fillSquare(offset, sizew, sqr, avgtr);
+
+				// left
+				avgl = _self.getAverage([l,pixel]);
+				offset = col * 4 + (row+sqr) * 4 * width;
+				sizew = (col + sqr <= width) ? sqr : width - (col + sqr);
+				_self.fillSquare(offset, sizew, scale-sqr-sqr, avgl);
+
+				// right
+				avgr = _self.getAverage([r,pixel]);
+				offset = (col+scale-sqr) * 4 + (row+sqr) * 4 * width;
+				sizew = (col + sqr <= width) ? sqr : width - (col + scale);
+				_self.fillSquare(offset, sizew, scale-sqr-sqr, avgr);
+
+				// bottom left
+				avgbl = _self.getAverage([l,b,pixel]);
+				offset = col * 4 + (row+scale-sqr) * 4 * width;
+				sizew = (col + sqr <= width) ? sqr : width - (col + sqr);
+				_self.fillSquare(offset, sizew, sqr, avgbl);
+
+				// bottom
+				avgb = _self.getAverage([b,pixel]);
+				offset = (col+sqr) * 4 + (row+scale-sqr) * 4 * width;
+				sizew = ((col+scale-sqr-sqr) <= width) ? (scale-sqr-sqr) : width - (col+scale-sqr-sqr);
+				_self.fillSquare(offset, sizew, sqr, avgb);
+
+				// bottom right
+				avgbr = _self.getAverage([r,b,pixel]);
+				offset = (col+scale-sqr) * 4 + (row+scale-sqr) * 4 * width;
+				sizew = (col + sqr <= width) ? sqr : width - (col + scale);
+				_self.fillSquare(offset, sizew, sqr, avgbr);
+
+				if(col > width - 1 - scale) {
+					col = 0;
+					row += scale;
+				} else {
+					col += scale;
+				}
+				i++;
+			}
+			ctx.putImageData(imageData, 0, 0);
+
+		};
+
+		this.getAverage = function(pixels) {
+			var i=0,
+				count = pixels.length,
+				sumr=0,sumg=0,sumb=0,suma=0;
+			for(i=0; i<count; i++) {
+				sumr += pixels[i].r;
+				sumg += pixels[i].g;
+				sumb += pixels[i].b;
+				suma += pixels[i].a;
+			}
+			return {
+				r: Math.round(sumr/count),
+				g: Math.round(sumg/count),
+				b: Math.round(sumb/count),
+				a: Math.round(suma/count)
+			}
+		}
+
 		this.getDithered = function(p) {
 			var div = 10,
 				palette = Array.apply(null, Array(div)).map(function (_, i) {return Math.round(((i+1)/div) * 255);}),
@@ -898,7 +1010,7 @@
 				{r:p.r-r,g:p.g-g,b:p.b-b,a:p.a-a}
 			];
 		};
-		
+
 		this.distributeDither = function(p,dither,mult) {
 			return {
 				r: p.r + dither.r * mult,
@@ -907,7 +1019,7 @@
 				a: p.a + dither.a * mult
 			}
 		}
-		
+
 		this.countInArray = function(arr, needle) {
 			var i=0, count=0;
 			for(i=0; i<arr.length; i++) {
@@ -941,14 +1053,14 @@
 		this.fillSquare = function(orig,sizew,sizeh,rgba) {
 			var i,j,offset;
 			for(i=0; i<sizeh; i++) {
-					for(j=0; j<sizew; j++) {
-						offset = orig + width * 4 * i + 4 * j;
-						imageData.data[offset + 0] = rgba.r;
-							imageData.data[offset + 1] = rgba.g;
-							imageData.data[offset + 2] = rgba.b;
-							imageData.data[offset + 3] = rgba.a;
-						}
-					}
+				for(j=0; j<sizew; j++) {
+					offset = orig + width * 4 * i + 4 * j;
+					imageData.data[offset + 0] = rgba.r;
+					imageData.data[offset + 1] = rgba.g;
+					imageData.data[offset + 2] = rgba.b;
+					imageData.data[offset + 3] = rgba.a;
+				}
+			}
 
 		}
 
@@ -1056,13 +1168,13 @@
 			_self.fps = fps;
 			_self.rate = 1000/fps;
 		}
-		
+
 		this.setLattice = function(lattice) {
 			_self.stopLoop();
 			_self.lattice = lattice;
 			_self.initLattice();
 		}
-		
+
 		///////////////////////////////////////////////////////
 		// main
 		///////////////////////////////////////////////////////
