@@ -1037,10 +1037,6 @@
 			return r + g + b;
 		}
 
-		this.getStyle = function(rgba) {
-			return "rgba(" + rgba.r + "," + rgba.g + "," + rgba.b + "," + rgba.a/255 + ")";
-		};
-
 		this.getPixel = function(imageData, x, y) {
 			var r, g, b, a, offset = x * 4 + y * 4 * imageData.width;
 			r = imageData.data[offset];
@@ -1122,6 +1118,20 @@
 			} else {
 				_self.initLattice();
 			}
+		};
+
+		this.stop = function() {
+			if (_self.animeID) {
+				_self.stopLoop();
+			}
+		};
+
+		this.play = function() {
+			if (_self.animeID) {
+				_self.stopLoop();
+			}
+			_self.initLattice();
+			_self.startLoop();
 		};
 
 		this.toggleLoop = function() {
