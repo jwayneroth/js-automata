@@ -395,6 +395,8 @@
 
 		this.iterate4A = function() {
 
+			//console.log('iterate4A: imageData.data ' + imageData.data.slice().length);
+
 			var id = {data:imageData.data.slice(), width: width, height: height},
 				scale = _self.scale,
 				sizew,
