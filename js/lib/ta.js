@@ -245,7 +245,7 @@
 
 		this.implementColors = function(c1,c2) {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				i=0,
 				row=0,
 				col=0,
@@ -322,7 +322,7 @@
 
 		this.iterate1 = function() {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -397,7 +397,7 @@
 
 			//console.log('iterate4A: imageData.data ' + imageData.data.slice().length);
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -473,7 +473,7 @@
 
 		this.iterateLife = function() {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -577,7 +577,7 @@
 
 		this.iterate30 = function() {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -661,7 +661,7 @@
 
 		this.iterate90 = function() {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -739,7 +739,7 @@
 
 		this.iterate110 = function() {
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,draw=0,
@@ -819,7 +819,7 @@
 
 			console.log('TA::dither');
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,
@@ -892,7 +892,7 @@
 
 			console.log('TA::antialias');
 
-			var id = {data:imageData.data.slice(), width: width, height: height},
+			var id = {data:_self.cloneArray(imageData.data), width: width, height: height},
 				scale = _self.scale,
 				sizew,
 				i=0,row=0,col=0,
@@ -1028,6 +1028,14 @@
 				if (arr[i] == needle) count++;
 			}
 			return count;
+		}
+
+		this.cloneArray = function(arr) {
+			var clone = new Array(), i;
+			for(i=0;i<arr.length;i++) {
+				clone.push(arr[i]);
+			}
+			return clone;
 		}
 
 		this.getPixelTotal = function(imageData, x, y) {

@@ -217,7 +217,7 @@
 				color_two: c2
 			});
 
-			//$('#playpause').click();
+			$('#playpause').click();
 
 		};
 
